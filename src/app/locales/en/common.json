@@ -1,0 +1,32 @@
+{
+  "title": "Sports Festival",
+  "welcome": "Welcome to Sports Festival",
+  "form": {
+    "title": "Event Registration",
+    "name": "Name",
+    "age": "Age",
+    "email": "Email",
+    "gender": "Gender",
+    "gender_options": {
+      "male": "Male",
+      "female": "Female",
+      "other": "Other"
+    },
+    "event": "Event",
+    "event_options": {
+      "running": "Running Race",
+      "relay": "Relay Race",
+      "jump": "Long Jump",
+      "throw": "Ball Throw"
+    },
+    "submit": "Register",
+    "errors": {
+      "required": "This field is required",
+      "email": "Please enter a valid email address",
+      "age": {
+        "min": "Age must be at least {{min}}",
+        "max": "Age must be at most {{max}}"
+      }
+    }
+  }
+} 

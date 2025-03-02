@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
+import { languages } from "../i18n";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -13,16 +14,22 @@ export const metadata: Metadata = {
   viewport: "width=device-width, initial-scale=1",
 };
 
+export async function generateStaticParams() {
+  return languages.map((lang) => ({ lang }));
+}
+
 export default function RootLayout({
   children,
-}: Readonly<{
+  params: { lang },
+}: {
   children: React.ReactNode;
-}>) {
+  params: { lang: string };
+}) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang={lang} className={inter.variable}>
       <body className="antialiased">
         {children}
       </body>
     </html>
   );
-}
+} 
