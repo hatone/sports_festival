@@ -1,0 +1,54 @@
+{
+  "title": "運動会",
+  "welcome": "運動会へようこそ",
+  "form": {
+    "title": "参加登録フォーム",
+    "name": "名前",
+    "age": "年齢",
+    "email": "メールアドレス",
+    "gender": "性別",
+    "gender_options": {
+      "male": "男性",
+      "female": "女性",
+      "other": "その他"
+    },
+    "event": "参加種目（1つ以上選択）",
+    "event_options": {
+      "running": "徒競走",
+      "obstacle": "障害物競争",
+      "relay": "リレー",
+      "ballgame": "玉入れ",
+      "tugofwar": "綱引き",
+      "dance": "チームでダンス対決",
+      "tailtag": "しっぽ取り"
+    },
+    "phone": "電話番号（代表者）",
+    "notes": "備考欄",
+    "submit": "登録する",
+    "participants": {
+      "title": "追加参加者",
+      "add": "参加者を追加",
+      "remove": "削除",
+      "empty": "追加参加者はいません"
+    },
+    "errors": {
+      "required": "この項目は必須です",
+      "email": "有効なメールアドレスを入力してください",
+      "phone": "有効な電話番号を入力してください",
+      "age": {
+        "min": "年齢は{{min}}歳以上である必要があります",
+        "max": "年齢は{{max}}歳以下である必要があります"
+      },
+      "events": "少なくとも1つの種目を選択してください"
+    },
+    "pricing": {
+      "title": "料金",
+      "free": "無料（11歳以下）",
+      "paid": "20ドル（12歳以上）"
+    }
+  },
+  "footer": {
+    "organizer": "主催",
+    "contact": "お問い合わせ"
+  }
+} 

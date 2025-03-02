@@ -1,0 +1,54 @@
+{
+  "title": "Sports Festival",
+  "welcome": "Welcome to Sports Festival",
+  "form": {
+    "title": "Event Registration",
+    "name": "Name",
+    "age": "Age",
+    "email": "Email",
+    "gender": "Gender",
+    "gender_options": {
+      "male": "Male",
+      "female": "Female",
+      "other": "Other"
+    },
+    "event": "Events (Select at least one)",
+    "event_options": {
+      "running": "Running Race",
+      "obstacle": "Obstacle Race",
+      "relay": "Relay Race",
+      "ballgame": "Ball Game",
+      "tugofwar": "Tug of War",
+      "dance": "Team Dance",
+      "tailtag": "Tail Tag"
+    },
+    "phone": "Phone Number (Representative)",
+    "notes": "Additional Notes",
+    "submit": "Register",
+    "participants": {
+      "title": "Additional Participants",
+      "add": "Add Participant",
+      "remove": "Remove",
+      "empty": "No additional participants"
+    },
+    "errors": {
+      "required": "This field is required",
+      "email": "Please enter a valid email address",
+      "phone": "Please enter a valid phone number",
+      "age": {
+        "min": "Age must be at least {{min}} years",
+        "max": "Age must be at most {{max}} years"
+      },
+      "events": "Please select at least one event"
+    },
+    "pricing": {
+      "title": "Pricing",
+      "free": "Free (11 years and under)",
+      "paid": "$20 (12 years and older)"
+    }
+  },
+  "footer": {
+    "organizer": "Organizer",
+    "contact": "Contact"
+  }
+} 
