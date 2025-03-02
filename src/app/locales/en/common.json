@@ -2,7 +2,7 @@
   "title": "Sports Festival",
   "welcome": "Welcome to Sports Festival",
   "form": {
-    "title": "Event Registration",
+    "title": "Registration Form",
     "name": "Name",
     "age": "Age",
     "email": "Email",
@@ -25,6 +25,7 @@
     "phone": "Phone Number (Representative)",
     "notes": "Additional Notes",
     "submit": "Register",
+    "representative_info": "Representative Information",
     "participants": {
       "title": "Additional Participants",
       "add": "Add Participant",

@@ -51,6 +51,7 @@ type FormDict = {
     }
     events: string
   }
+  representative_info: string
 }
 
 export default function RegisterForm({ dict }: { dict: FormDict }) {
@@ -155,7 +156,7 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
       
       {/* 代表者セクション */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4 text-white border-b pb-2">代表者情報</h2>
+        <h2 className="text-xl font-semibold mb-4 text-white border-b pb-2">{dict.representative_info}</h2>
         
         <div className="space-y-6">
           <div>

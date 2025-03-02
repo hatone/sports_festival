@@ -25,6 +25,7 @@
     "phone": "電話番号（代表者）",
     "notes": "備考欄",
     "submit": "登録する",
+    "representative_info": "代表者情報",
     "participants": {
       "title": "追加参加者",
       "add": "参加者を追加",
