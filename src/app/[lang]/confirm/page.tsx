@@ -1,7 +1,7 @@
 'use client'
 
 import { useSearchParams, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
 import { loadStripe } from '@stripe/stripe-js'
 
@@ -22,7 +22,7 @@ type Participant = {
   eventLabels: string[];
 }
 
-export default function ConfirmPage() {
+function ConfirmPageContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [formData, setFormData] = useState<{
@@ -361,5 +361,26 @@ export default function ConfirmPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ConfirmPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-900 text-white p-6 md:p-24">
+        <div className="max-w-2xl mx-auto">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-700 rounded w-1/2 mb-8"></div>
+            <div className="space-y-4">
+              <div className="h-4 bg-gray-700 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-700 rounded w-1/2"></div>
+              <div className="h-4 bg-gray-700 rounded w-2/3"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }>
+      <ConfirmPageContent />
+    </Suspense>
   )
 } 

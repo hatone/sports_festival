@@ -2,14 +2,14 @@
 
 export const dynamic = 'force-dynamic'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 
-export default function PaymentSuccessPage({
-  params: { lang }
+function PaymentSuccessContent({
+  lang
 }: {
-  params: { lang: string }
+  lang: string
 }) {
   const searchParams = useSearchParams()
   const sessionId = searchParams.get('session_id')
