@@ -15,16 +15,16 @@ export default async function Home({
         <h1 className="text-4xl font-bold">{dict.welcome}</h1>
         <div className="flex gap-4 items-center">
           <div className="flex gap-2">
-            <Link href="/en" className={lang === 'en' ? 'font-bold' : ''}>
+            <Link href="/en" className={`text-gray-600 hover:text-gray-900 ${lang === 'en' ? 'font-bold text-black' : ''}`}>
               English
             </Link>
-            <Link href="/ja" className={lang === 'ja' ? 'font-bold' : ''}>
+            <Link href="/ja" className={`text-gray-600 hover:text-gray-900 ${lang === 'ja' ? 'font-bold text-black' : ''}`}>
               日本語
             </Link>
           </div>
           <Link
             href={`/${lang}/register`}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+            className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700 transition-colors"
           >
             {dict.form.title}
           </Link>
