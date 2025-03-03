@@ -1,17 +1,22 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "../globals.css";
 import Footer from "../components/Footer";
 import { languages } from "../i18n";
+
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
 export const metadata: Metadata = {
   title: "シリコンバレー大運動会",
   description: "第1回 田村淳のシリコンバレー大運動会",
-  viewport: "width=device-width, initial-scale=1",
 };
 
 export async function generateStaticParams() {

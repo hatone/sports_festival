@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { loadStripe } from '@stripe/stripe-js'
 
+export const dynamic = 'force-dynamic'
+
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 // 料金計算関数（11歳以下は無料、12歳以上は$20）
