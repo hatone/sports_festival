@@ -69,4 +69,26 @@ function PaymentSuccessContent({
       </div>
     </div>
   )
+}
+
+export default function PaymentSuccessPage({
+  params: { lang }
+}: {
+  params: { lang: string }
+}) {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-900 text-white p-6 md:p-24">
+        <div className="max-w-2xl mx-auto text-center">
+          <div className="animate-pulse">
+            <div className="h-16 w-16 bg-gray-700 rounded-full mx-auto mb-8"></div>
+            <div className="h-8 bg-gray-700 rounded w-1/2 mx-auto mb-4"></div>
+            <div className="h-4 bg-gray-700 rounded w-3/4 mx-auto"></div>
+          </div>
+        </div>
+      </div>
+    }>
+      <PaymentSuccessContent lang={lang} />
+    </Suspense>
+  )
 } 
