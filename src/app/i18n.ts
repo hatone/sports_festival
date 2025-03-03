@@ -1,4 +1,4 @@
-import type { Locale } from './types'
+import type { Locale } from '@/app/types'
 
 export const fallbackLng = 'en'
 export const languages = [fallbackLng, 'ja'] as const
