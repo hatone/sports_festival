@@ -3,8 +3,8 @@
 import { useForm, Controller, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { registerSchema, type RegisterFormData, type ParticipantData, eventEnum } from './schema'
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
 
 type FormDict = {
   title: string
@@ -69,6 +69,17 @@ type FormDict = {
 
 export default function RegisterForm({ dict }: { dict: FormDict }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const [lang, setLang] = useState('');
+  
+  // 言語パラメータを取得（現在のURLから）- クライアントサイドでのみ実行
+  useEffect(() => {
+    const pathParts = pathname.split('/');
+    if (pathParts.length > 1) {
+      setLang(pathParts[1]);
+    }
+  }, [pathname]);
+  
   const {
     register,
     handleSubmit,
@@ -89,9 +100,6 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
       participants: []
     }
   })
-  
-  // 言語パラメータを取得（現在のURLから）
-  const lang = window.location.pathname.split('/')[1]
   
   // 追加参加者のフィールド配列
   const { fields, append, remove } = useFieldArray({

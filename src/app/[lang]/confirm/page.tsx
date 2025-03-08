@@ -1,6 +1,6 @@
 'use client'
 
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
 import { loadStripe } from '@stripe/stripe-js'
@@ -25,6 +25,8 @@ type Participant = {
 function ConfirmPageContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const pathname = usePathname()
+  const [lang, setLang] = useState('')
   const [formData, setFormData] = useState<{
     name: string
     age: string
@@ -156,8 +158,13 @@ function ConfirmPageContent() {
         totalPrice
       })
       
+      // 言語情報を取得
+      const pathParts = pathname.split('/');
+      if (pathParts.length > 1) {
+        setLang(pathParts[1]);
+      }
+      
       // 言語によって辞書を切り替える
-      const lang = window.location.pathname.split('/')[1]
       if (lang === 'ja') {
         setDictionary({
           title: '登録内容確認',
@@ -202,14 +209,11 @@ function ConfirmPageContent() {
     } catch (error) {
       console.error('Failed to parse data:', error)
     }
-  }, [searchParams])
+  }, [searchParams, pathname])
 
   // Stripe決済画面に進む
   const handleProceedToPayment = async () => {
     try {
-      // 言語情報を取得
-      const lang = window.location.pathname.split('/')[1]
-      
       // サーバーサイドのAPIを呼び出す
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
