@@ -8,7 +8,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(request: Request) {
   try {
-    const { name, email, events, lang, phone, participants, amount } = await request.json()
+    const { name, email, events, lang, phone, participants, amount, gender, notes } = await request.json()
     
     // 合計参加者数（代表者 + 追加参加者）
     const totalParticipants = 1 + (participants?.length || 0)
@@ -16,6 +16,12 @@ export async function POST(request: Request) {
     // 受け取った金額を使用（11歳以下は無料、12歳以上は$20）
     // クライアント側で計算された金額をセント単位に変換（ドル→日本円）
     const unitAmount = amount * 100
+    
+    // 参加者情報をJSON文字列に変換
+    const participantsInfo = JSON.stringify(participants || [])
+    
+    // 選択したイベントをカンマ区切りの文字列に変換
+    const eventsString = Array.isArray(events) ? events.join(', ') : ''
     
     // Stripeセッションを作成
     const session = await stripe.checkout.sessions.create({
@@ -38,8 +44,15 @@ export async function POST(request: Request) {
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/${lang}/payment-cancel`,
       customer_email: email,
       metadata: {
+        name: name,
+        email: email,
         phone: phone || '',
+        gender: gender || '',
+        events: eventsString,
+        notes: notes || '',
         participantsCount: totalParticipants.toString(),
+        participants: participantsInfo.length > 500 ? '参加者情報は長すぎるため省略されました' : participantsInfo,
+        language: lang
       },
     })
     

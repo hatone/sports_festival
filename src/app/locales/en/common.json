@@ -1,6 +1,18 @@
 {
   "title": "Sports Festival",
-  "welcome": "Welcome to Sports Festival",
+  "welcome": "The 1st Atsushi Tamura's Silicon Valley Sports Festival!",
+  "introduction": {
+    "title": "Introduction",
+    "text": "We are excited to announce that a sports festival organized by Atsushi Tamura will be held in Silicon Valley. To all residents of the Bay Area, would you like to enjoy a nostalgic sports day in America? If you're worried about your fitness level, have back pain, or haven't run in years, don't worry! Participation in events is optional, so feel free to come and enjoy watching and cheering.",
+    "details": {
+      "date": "Date: May 4, 2025 (Sunday) 9:00 AM - 4:00 PM",
+      "venue": "Venue: Woodside High School",
+      "participants": "Participants: Families residing in the Bay Area (others are welcome too)",
+      "fee": "Fee: $20 for ages 12 and above (Free for ages 11 and under)",
+      "format": "Format: Participants will be divided into 4 teams to compete for points in a friendly manner.",
+      "events": "Events (Planned): Running races, tug of war, ball toss, giant ball rolling, dance competition, various relay races, and more."
+    }
+  },
   "form": {
     "title": "Registration Form",
     "name": "Name",
@@ -12,7 +24,9 @@
       "female": "Female",
       "other": "Other"
     },
-    "event": "Events (Select at least one)",
+    "event": "Events (Optional)",
+    "event_description": "Participation in events is not mandatory. It's okay if you don't want to participate in any events. This form helps us measure how many people are interested in which events. Please check at the venue on the day of the event to confirm which events will be held.",
+    "event_title": "【Planned Events】",
     "event_options": {
       "running": "Running Race",
       "obstacle": "Obstacle Race",
@@ -20,7 +34,10 @@
       "ballgame": "Ball Game",
       "tugofwar": "Tug of War",
       "dance": "Team Dance",
-      "tailtag": "Tail Tag"
+      "tailtag": "Tail Tag",
+      "bigball_team": "Giant Ball Rolling (Team)",
+      "bigball_pair": "Giant Ball Carrying (Pair)",
+      "borrowing": "Borrowing Race"
     },
     "phone": "Phone Number (Representative)",
     "notes": "Additional Notes",
@@ -40,12 +57,18 @@
         "min": "Age must be at least {{min}} years",
         "max": "Age must be at most {{max}} years"
       },
-      "events": "Please select at least one event"
+      "events": "Please select events (optional)"
     },
     "pricing": {
-      "title": "Pricing",
-      "free": "Free (11 years and under)",
-      "paid": "$20 (12 years and older)"
+      "title": "Event Details",
+      "details": {
+        "date": "Date: May 4, 2025 (Sunday) 9:00 AM - 4:00 PM",
+        "venue": "Venue: Woodside High School",
+        "participants": "Participants: Families residing in the Bay Area (others are welcome too)",
+        "fee": "Fee: $20 for ages 12 and above (Free for ages 11 and under)",
+        "format": "Format: Participants will be divided into 4 teams to compete for points in a friendly manner.",
+        "events": "Events (Planned): Running races, tug of war, ball toss, giant ball rolling, dance competition, various relay races, and more."
+      }
     }
   },
   "footer": {

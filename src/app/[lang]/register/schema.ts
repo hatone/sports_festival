@@ -7,7 +7,10 @@ export const eventEnum = [
   'ballgame',
   'tugofwar',
   'dance',
-  'tailtag'
+  'tailtag',
+  'bigball_team',
+  'bigball_pair',
+  'borrowing'
 ] as const
 
 // 追加参加者のスキーマ
@@ -15,7 +18,7 @@ export const participantSchema = z.object({
   name: z.string().min(1),
   age: z.number().min(0).max(100),
   gender: z.enum(['male', 'female', 'other']),
-  events: z.array(z.enum(eventEnum)).min(1, { message: 'required' })
+  events: z.array(z.enum(eventEnum)).default([])
 })
 
 // 代表者を含む全体のスキーマ
@@ -24,7 +27,7 @@ export const registerSchema = z.object({
   age: z.number().min(0).max(100),
   email: z.string().email(),
   gender: z.enum(['male', 'female', 'other']),
-  events: z.array(z.enum(eventEnum)).min(1, { message: 'required' }),
+  events: z.array(z.enum(eventEnum)).default([]),
   phone: z.string().optional(),
   notes: z.string().optional(),
   // 追加参加者の配列

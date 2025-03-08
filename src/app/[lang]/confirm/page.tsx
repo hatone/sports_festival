@@ -1,6 +1,6 @@
 'use client'
 
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
 import { loadStripe } from '@stripe/stripe-js'
@@ -25,6 +25,8 @@ type Participant = {
 function ConfirmPageContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const pathname = usePathname()
+  const [lang, setLang] = useState('')
   const [formData, setFormData] = useState<{
     name: string
     age: string
@@ -66,6 +68,14 @@ function ConfirmPageContent() {
       paid: string
       total: string
       currency: string
+      details: {
+        date: string
+        venue: string
+        participants: string
+        fee: string
+        format: string
+        events: string
+      }
     }
   }>({
     title: 'Registration Confirmation',
@@ -91,11 +101,19 @@ function ConfirmPageContent() {
       noParticipants: 'No additional participants'
     },
     pricing: {
-      title: 'Pricing Details',
+      title: 'Event Details',
       free: 'Free (11 years and under)',
       paid: '$20 (12 years and older)',
       total: 'Total',
-      currency: '$'
+      currency: '$',
+      details: {
+        date: 'Date: May 4, 2025 (Sunday) 9:00 AM - 4:00 PM',
+        venue: 'Venue: Woodside High School',
+        participants: 'Participants: Families residing in the Bay Area (others are welcome too)',
+        fee: 'Fee: $20 for ages 12 and above (Free for ages 11 and under)',
+        format: 'Format: Participants will be divided into 4 teams to compete for points in a friendly manner.',
+        events: 'Events (Planned): Running races, tug of war, ball toss, giant ball rolling, dance competition, various relay races, and more.'
+      }
     }
   })
 
@@ -140,8 +158,13 @@ function ConfirmPageContent() {
         totalPrice
       })
       
+      // 言語情報を取得
+      const pathParts = pathname.split('/');
+      if (pathParts.length > 1) {
+        setLang(pathParts[1]);
+      }
+      
       // 言語によって辞書を切り替える
-      const lang = window.location.pathname.split('/')[1]
       if (lang === 'ja') {
         setDictionary({
           title: '登録内容確認',
@@ -167,25 +190,30 @@ function ConfirmPageContent() {
             noParticipants: '追加参加者はいません'
           },
           pricing: {
-            title: '料金詳細',
+            title: 'イベント詳細',
             free: '無料（11歳以下）',
             paid: '20ドル（12歳以上）',
             total: '合計',
-            currency: '$'
+            currency: '$',
+            details: {
+              date: '日時：2025年5月4日（日）午前9時〜午後4時',
+              venue: '会場：Woodside High School',
+              participants: '参加者：ベイエリア在住（でなくても可）のご家族のみなさま',
+              fee: '参加費：12歳以上$20（11歳以下は無料）',
+              format: '形式：4チームに分かれて点数をほのぼの競い合います。',
+              events: '競技（予定）：徒競走、綱引き、玉入れ、大玉転がし、ダンス対決、各種リレーなどなど。'
+            }
           }
         })
       }
     } catch (error) {
       console.error('Failed to parse data:', error)
     }
-  }, [searchParams])
+  }, [searchParams, pathname])
 
   // Stripe決済画面に進む
   const handleProceedToPayment = async () => {
     try {
-      // 言語情報を取得
-      const lang = window.location.pathname.split('/')[1]
-      
       // サーバーサイドのAPIを呼び出す
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
@@ -195,9 +223,13 @@ function ConfirmPageContent() {
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
+          gender: formData.gender,
+          age: formData.age,
           events: formData.events,
+          eventLabels: formData.eventLabels,
           lang: lang,
           phone: formData.phone,
+          notes: formData.notes,
           participants: formData.participants,
           amount: formData.totalPrice, // 計算された合計金額
         }),
@@ -322,26 +354,17 @@ function ConfirmPageContent() {
           )}
         </div>
         
-        {/* 料金情報 */}
+        {/* イベント詳細 */}
         <div className="bg-gray-800 p-6 rounded-lg shadow-md mb-8">
           <h2 className="text-xl font-semibold mb-4">{dictionary.pricing.title}</h2>
-          
-          <div className="border-b border-gray-700 pb-4 mb-4">
-            <p className="text-gray-400 mb-2">
-              {Number(formData.age) <= 11 ? dictionary.pricing.free : dictionary.pricing.paid}
-            </p>
-            
-            {formData.participants.map((participant, index) => (
-              <p key={index} className="text-gray-400">
-                {participant.name}: {participant.age <= 11 ? dictionary.pricing.free : dictionary.pricing.paid}
-              </p>
-            ))}
-          </div>
-          
-          <div className="flex justify-between items-center">
-            <p className="font-semibold">{dictionary.pricing.total}</p>
-            <p className="text-xl font-bold">{dictionary.pricing.currency}{formData.totalPrice}</p>
-          </div>
+          <ul className="space-y-2 text-gray-300">
+            <li>{dictionary.pricing.details.date}</li>
+            <li>{dictionary.pricing.details.venue}</li>
+            <li>{dictionary.pricing.details.participants}</li>
+            <li>{dictionary.pricing.details.fee}</li>
+            <li>{dictionary.pricing.details.format}</li>
+            <li>{dictionary.pricing.details.events}</li>
+          </ul>
         </div>
         
         <div className="flex flex-col sm:flex-row gap-4">
