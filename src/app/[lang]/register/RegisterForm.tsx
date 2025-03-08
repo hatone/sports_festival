@@ -18,6 +18,8 @@ type FormDict = {
     other: string
   }
   event: string
+  event_description: string
+  event_title: string
   event_options: {
     running: string
     obstacle: string
@@ -26,6 +28,9 @@ type FormDict = {
     tugofwar: string
     dance: string
     tailtag: string
+    bigball_team: string
+    bigball_pair: string
+    borrowing: string
   }
   phone: string
   notes: string
@@ -40,6 +45,14 @@ type FormDict = {
     title: string
     free: string
     paid: string
+    details: {
+      date: string
+      venue: string
+      participants: string
+      fee: string
+      format: string
+      events: string
+    }
   }
   errors: {
     required: string
@@ -61,13 +74,24 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
     handleSubmit,
     control,
     formState: { errors },
+    watch,
+    setValue
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
+      name: '',
+      age: 0,
+      email: '',
+      gender: 'male',
       events: [],
+      phone: '',
+      notes: '',
       participants: []
     }
   })
+  
+  // 言語パラメータを取得（現在のURLから）
+  const lang = window.location.pathname.split('/')[1]
   
   // 追加参加者のフィールド配列
   const { fields, append, remove } = useFieldArray({
@@ -86,71 +110,84 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
   };
 
   const onSubmit = async (data: RegisterFormData) => {
-    // フォームデータをURLパラメータに変換して確認ページに遷移
-    const params = new URLSearchParams();
-    params.append('name', data.name);
-    params.append('age', data.age.toString());
-    params.append('email', data.email);
-    params.append('gender', data.gender);
-    params.append('events', JSON.stringify(data.events));
-    if (data.phone) params.append('phone', data.phone);
-    if (data.notes) params.append('notes', data.notes);
-    
-    // 追加参加者の情報も含める
-    params.append('participants', JSON.stringify(data.participants));
-    
-    // 言語パラメータを取得（現在のURLから）
-    const lang = window.location.pathname.split('/')[1];
-    
-    // 確認画面へ遷移
-    router.push(`/${lang}/confirm?${params.toString()}`);
+    try {
+      // URLパラメータを作成
+      const params = new URLSearchParams()
+      params.set('name', data.name)
+      params.set('age', data.age.toString())
+      params.set('email', data.email)
+      params.set('gender', data.gender)
+      params.set('events', JSON.stringify(data.events))
+      params.set('phone', data.phone || '')
+      params.set('notes', data.notes || '')
+      
+      // 追加参加者の情報を含める
+      if (data.participants && data.participants.length > 0) {
+        params.set('participants', JSON.stringify(data.participants))
+      } else {
+        params.set('participants', '[]')
+      }
+      
+      // 免責事項ページへ遷移
+      router.push(`/${lang}/disclaimer?${params.toString()}`)
+    } catch (error) {
+      console.error('Error submitting form:', error)
+    }
   }
 
   // 参加者のイベント選択のレンダリング関数
   const renderEventCheckboxes = (participantIndex: number) => {
+    const fieldName = participantIndex === -1 ? 'events' : `participants.${participantIndex}.events`;
+    
     return (
-      <Controller
-        control={control}
-        name={`participants.${participantIndex}.events`}
-        render={({ field: { onChange, value = [] } }) => (
-          <>
-            {eventEnum.map((event) => (
-              <div key={event} className="flex items-center">
-                <input
-                  id={`participant-${participantIndex}-event-${event}`}
-                  type="checkbox"
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-500 rounded bg-gray-700"
-                  checked={value?.includes(event)}
-                  onChange={(e) => {
-                    const checked = e.target.checked;
-                    const newValue = checked
-                      ? [...value, event]
-                      : value.filter((val: string) => val !== event);
-                    onChange(newValue);
-                  }}
-                />
-                <label
-                  htmlFor={`participant-${participantIndex}-event-${event}`}
-                  className="ml-2 block text-sm text-white"
-                >
-                  {dict.event_options[event]}
-                </label>
-              </div>
-            ))}
-          </>
-        )}
-      />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <Controller
+          control={control}
+          name={fieldName as any}
+          render={({ field: { onChange, value } }) => (
+            <>
+              {eventEnum.map((event) => (
+                <div key={event} className="flex items-center">
+                  <input
+                    id={`event-${event}-${participantIndex}`}
+                    type="checkbox"
+                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-500 rounded bg-gray-700"
+                    checked={value?.includes(event)}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      const newValue = checked
+                        ? [...(value || []), event]
+                        : (value || []).filter((val: string) => val !== event);
+                      onChange(newValue);
+                    }}
+                  />
+                  <label
+                    htmlFor={`event-${event}-${participantIndex}`}
+                    className="ml-2 block text-sm text-white"
+                  >
+                    {dict.event_options[event]}
+                  </label>
+                </div>
+              ))}
+            </>
+          )}
+        />
+      </div>
     );
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* 料金情報 */}
-      <div className="bg-gray-800 p-4 rounded-md mb-6">
+      {/* イベント詳細セクション */}
+      <div className="bg-gray-800 p-4 rounded-lg mb-6">
         <h3 className="font-medium text-white mb-2">{dict.pricing.title}</h3>
-        <ul className="list-disc pl-5 text-gray-300">
-          <li>{dict.pricing.free}</li>
-          <li>{dict.pricing.paid}</li>
+        <ul className="text-gray-300 space-y-1 text-sm">
+          <li>{dict.pricing.details.date}</li>
+          <li>{dict.pricing.details.venue}</li>
+          <li>{dict.pricing.details.participants}</li>
+          <li>{dict.pricing.details.fee}</li>
+          <li>{dict.pricing.details.format}</li>
+          <li>{dict.pricing.details.events}</li>
         </ul>
       </div>
       
@@ -242,48 +279,23 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
             )}
           </div>
 
-          <div>
-            <fieldset>
-              <legend className="block text-sm font-medium text-white mb-2">
-                {dict.event}
-              </legend>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Controller
-                  control={control}
-                  name="events"
-                  render={({ field: { onChange, value } }) => (
-                    <>
-                      {eventEnum.map((event) => (
-                        <div key={event} className="flex items-center">
-                          <input
-                            id={`event-${event}`}
-                            type="checkbox"
-                            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-500 rounded bg-gray-700"
-                            checked={value?.includes(event)}
-                            onChange={(e) => {
-                              const checked = e.target.checked;
-                              const newValue = checked
-                                ? [...value, event]
-                                : value.filter((val) => val !== event);
-                              onChange(newValue);
-                            }}
-                          />
-                          <label
-                            htmlFor={`event-${event}`}
-                            className="ml-2 block text-sm text-white"
-                          >
-                            {dict.event_options[event]}
-                          </label>
-                        </div>
-                      ))}
-                    </>
-                  )}
-                />
-              </div>
-              {errors.events && (
-                <p className="mt-1 text-sm text-red-400">{dict.errors.events}</p>
-              )}
-            </fieldset>
+          {/* 参加種目 */}
+          <div className="mb-6">
+            <label className="block text-white font-medium mb-2">
+              {dict.event}
+            </label>
+            <p className="text-gray-300 mb-3 text-sm">
+              {dict.event_description}
+            </p>
+            <h4 className="text-white font-medium mb-2">
+              {dict.event_title}
+            </h4>
+            <div className="space-y-2">
+              {renderEventCheckboxes(-1)}
+            </div>
+            {errors.events && (
+              <p className="text-red-500 text-sm mt-1">{dict.errors.events}</p>
+            )}
           </div>
 
           <div>
