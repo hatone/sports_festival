@@ -43,8 +43,8 @@ type FormDict = {
   }
   pricing: {
     title: string
-    free: string
-    paid: string
+    free?: string
+    paid?: string
     details: {
       date: string
       venue: string
