@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import { appendToGoogleSheet } from '@/app/utils/googleSheets'
+import { appendToGoogleSheet } from '../../utils/googleSheets'
 
 // 環境変数からStripe APIキーを取得
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
