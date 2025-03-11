@@ -77,7 +77,45 @@ function ConfirmPageContent() {
         events: string
       }
     }
-  }>({
+  }>(lang === 'ja' ? {
+    title: '登録内容確認',
+    confirmTitle: '以下の登録内容をご確認ください',
+    backButton: '戻る',
+    proceedToPayment: '支払いに進む',
+    eventOptions: {
+      running: '徒競走',
+      obstacle: '障害物競走',
+      relay: 'リレー',
+      ballgame: '玉入れ',
+      tugofwar: '綱引き',
+      dance: 'チームダンス',
+      tailtag: 'しっぽ取り'
+    },
+    genderOptions: {
+      male: '男性',
+      female: '女性',
+      other: 'その他'
+    },
+    participants: {
+      title: '追加参加者',
+      noParticipants: '追加参加者はいません'
+    },
+    pricing: {
+      title: 'イベント詳細',
+      free: '無料（11歳以下）',
+      paid: '$20（12歳以上）',
+      total: '合計',
+      currency: '$',
+      details: {
+        date: '日時：2025年5月4日（日）午前9時〜午後4時',
+        venue: '会場：Woodside High School',
+        participants: '参加者：ベイエリア在住（でなくても可）のご家族のみなさま',
+        fee: '参加費：12歳以上$20（11歳以下は無料）',
+        format: '形式：4チームに分かれて点数をほのぼの競い合います。',
+        events: ''
+      }
+    }
+  } : {
     title: 'Registration Confirmation',
     confirmTitle: 'Please confirm your registration details',
     backButton: 'Back',
@@ -117,8 +155,60 @@ function ConfirmPageContent() {
     }
   })
 
-  // URLパラメータからデータを取得
+  // URLパラメータからデータとURLから言語を取得
   useEffect(() => {
+    // URLから言語を取得
+    if (pathname) {
+      const pathParts = pathname.split('/');
+      if (pathParts.length > 1) {
+        const urlLang = pathParts[1];
+        setLang(urlLang);
+        
+        // 言語に基づいて辞書を設定
+        if (urlLang === 'ja') {
+          setDictionary({
+            title: '登録内容確認',
+            confirmTitle: '以下の登録内容をご確認ください',
+            backButton: '戻る',
+            proceedToPayment: '支払いに進む',
+            eventOptions: {
+              running: '徒競走',
+              obstacle: '障害物競走',
+              relay: 'リレー',
+              ballgame: '玉入れ',
+              tugofwar: '綱引き',
+              dance: 'チームダンス',
+              tailtag: 'しっぽ取り'
+            },
+            genderOptions: {
+              male: '男性',
+              female: '女性',
+              other: 'その他'
+            },
+            participants: {
+              title: '追加参加者',
+              noParticipants: '追加参加者はいません'
+            },
+            pricing: {
+              title: 'イベント詳細',
+              free: '無料（11歳以下）',
+              paid: '$20（12歳以上）',
+              total: '合計',
+              currency: '$',
+              details: {
+                date: '日時：2025年5月4日（日）午前9時〜午後4時',
+                venue: '会場：Woodside High School',
+                participants: '参加者：ベイエリア在住（でなくても可）のご家族のみなさま',
+                fee: '参加費：12歳以上$20（11歳以下は無料）',
+                format: '形式：4チームに分かれて点数をほのぼの競い合います。',
+                events: ''
+              }
+            }
+          });
+        }
+      }
+    }
+    
     const name = searchParams.get('name') || ''
     const age = searchParams.get('age') || ''
     const email = searchParams.get('email') || ''
@@ -157,55 +247,6 @@ function ConfirmPageContent() {
         participants: participantsWithLabels,
         totalPrice
       })
-      
-      // 言語情報を取得
-      const pathParts = pathname.split('/');
-      if (pathParts.length > 1) {
-        setLang(pathParts[1]);
-      }
-      
-      // 言語によって辞書を切り替える
-      if (lang === 'ja') {
-        setDictionary({
-          title: '登録内容確認',
-          confirmTitle: '以下の内容で登録します',
-          backButton: '戻る',
-          proceedToPayment: '支払いに進む',
-          eventOptions: {
-            running: '徒競走',
-            obstacle: '障害物競争',
-            relay: 'リレー',
-            ballgame: '玉入れ',
-            tugofwar: '綱引き',
-            dance: 'チームでダンス対決',
-            tailtag: 'しっぽ取り'
-          },
-          genderOptions: {
-            male: '男性',
-            female: '女性',
-            other: 'その他'
-          },
-          participants: {
-            title: '追加参加者',
-            noParticipants: '追加参加者はいません'
-          },
-          pricing: {
-            title: 'イベント詳細',
-            free: '無料（11歳以下）',
-            paid: '20ドル（12歳以上）',
-            total: '合計',
-            currency: '$',
-            details: {
-              date: '日時：2025年5月4日（日）午前9時〜午後4時',
-              venue: '会場：Woodside High School',
-              participants: '参加者：ベイエリア在住（でなくても可）のご家族のみなさま',
-              fee: '参加費：12歳以上$20（11歳以下は無料）',
-              format: '形式：4チームに分かれて点数をほのぼの競い合います。',
-              events: ''
-            }
-          }
-        })
-      }
     } catch (error) {
       console.error('Failed to parse data:', error)
     }

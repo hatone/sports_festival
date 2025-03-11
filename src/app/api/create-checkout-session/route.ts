@@ -40,8 +40,8 @@ export async function POST(request: Request) {
         },
       ],
       mode: 'payment',
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/${lang}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/${lang}/payment-cancel`,
+      success_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://sports-festival-r16r05e2s-hatones-projects.vercel.app'}/${lang}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://sports-festival-r16r05e2s-hatones-projects.vercel.app'}/${lang}/payment-cancel`,
       customer_email: email,
       metadata: {
         name: name,
