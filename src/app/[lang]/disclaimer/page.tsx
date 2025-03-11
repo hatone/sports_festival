@@ -133,7 +133,7 @@ function DisclaimerContent({
             conclusion: '結論'
           },
           agreement: '免責事項のすべての内容を理解し、同意します。',
-          nameConfirmation: '署名の代わりに名前を入力してください：',
+          nameConfirmation: '署名としてお名前を入力して下さい：',
           namePlaceholder: 'あなたの氏名',
           submitButton: '同意して支払いに進む',
           backButton: '戻る'

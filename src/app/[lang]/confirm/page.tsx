@@ -112,7 +112,7 @@ function ConfirmPageContent() {
         participants: 'Participants: Families residing in the Bay Area (others are welcome too)',
         fee: 'Fee: $20 for ages 12 and above (Free for ages 11 and under)',
         format: 'Format: Participants will be divided into 4 teams to compete for points in a friendly manner.',
-        events: 'Events (Planned): Running races, tug of war, ball toss, giant ball rolling, dance competition, various relay races, and more.'
+        events: ''
       }
     }
   })
@@ -201,7 +201,7 @@ function ConfirmPageContent() {
               participants: '参加者：ベイエリア在住（でなくても可）のご家族のみなさま',
               fee: '参加費：12歳以上$20（11歳以下は無料）',
               format: '形式：4チームに分かれて点数をほのぼの競い合います。',
-              events: '競技（予定）：徒競走、綱引き、玉入れ、大玉転がし、ダンス対決、各種リレーなどなど。'
+              events: ''
             }
           }
         })
