@@ -51,7 +51,6 @@ type FormDict = {
       participants: string
       fee: string
       format: string
-      events: string
     }
   }
   errors: {
@@ -195,7 +194,6 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
           <li>{dict.pricing.details.participants}</li>
           <li>{dict.pricing.details.fee}</li>
           <li>{dict.pricing.details.format}</li>
-          <li>{dict.pricing.details.events}</li>
         </ul>
       </div>
       
@@ -329,7 +327,7 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
             onClick={addParticipant}
             className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-500 transition-colors"
           >
-            {dict.participants.add}
+            {fields.length === 0 ? dict.participants.add : `${fields.length + 2}人目を追加`}
           </button>
         </div>
         
