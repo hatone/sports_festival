@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
+import { appendToGoogleSheet } from '@/app/utils/googleSheets'
 
 // 環境変数からStripe APIキーを取得
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -55,6 +56,26 @@ export async function POST(request: Request) {
         language: lang
       },
     })
+    
+    // Google Sheetsにデータを追加
+    try {
+      await appendToGoogleSheet({
+        name,
+        age: '', // 年齢が送信されていないため空値
+        email,
+        gender,
+        events,
+        phone,
+        notes,
+        participants,
+        amount,
+        paymentStatus: 'pending',
+        sessionId: session.id
+      });
+    } catch (sheetError) {
+      console.error('Google Sheetsへのデータ追加に失敗しました:', sheetError);
+      // スプレッドシートへの追加が失敗しても、決済プロセスは継続
+    }
     
     return NextResponse.json({ sessionId: session.id })
   } catch (error) {
