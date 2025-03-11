@@ -1,18 +1,17 @@
 'use client'
 
 import { useSearchParams, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
 
-export default function PaymentSuccessPage({
-  params: { lang }
-}: {
-  params: { lang: string }
-}) {
+// コンテンツコンポーネントを分離
+function PaymentSuccessContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [isUpdating, setIsUpdating] = useState(true)
   const [updateSuccess, setUpdateSuccess] = useState(false)
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : ''
+  const lang = pathname.split('/')[1] || 'en'
   
   // ディクショナリ
   const dict = {
@@ -114,5 +113,33 @@ export default function PaymentSuccessPage({
         </div>
       </div>
     </div>
+  )
+}
+
+// メインページコンポーネント
+export default function PaymentSuccessPage({
+  params: { lang }
+}: {
+  params: { lang: string }
+}) {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-900 text-white p-6 md:p-24">
+        <div className="max-w-2xl mx-auto text-center">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-700 rounded-full mx-auto w-16 h-16 mb-8"></div>
+            <div className="h-6 bg-gray-700 rounded w-3/4 mx-auto mb-4"></div>
+            <div className="h-4 bg-gray-700 rounded w-1/2 mx-auto mb-8"></div>
+            <div className="bg-gray-800 p-6 rounded-lg shadow-md">
+              <div className="h-4 bg-gray-700 rounded w-full mx-auto mb-6"></div>
+              <div className="h-10 bg-gray-700 rounded w-full mx-auto mb-6"></div>
+              <div className="h-4 bg-gray-700 rounded w-1/3 mx-auto"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }>
+      <PaymentSuccessContent />
+    </Suspense>
   )
 } 
