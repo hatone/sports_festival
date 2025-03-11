@@ -320,25 +320,25 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
       
       {/* 追加参加者セクション */}
       <div className="mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-white border-b pb-2">{dict.participants.title}</h2>
-          <button
-            type="button"
-            onClick={addParticipant}
-            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-500 transition-colors"
-          >
-            {fields.length === 0 ? dict.participants.add : `${fields.length + 2}人目を追加`}
-          </button>
-        </div>
+        <h2 className="text-xl font-semibold text-white border-b pb-2 mb-4">{dict.participants.title}</h2>
         
         {fields.length === 0 ? (
-          <p className="text-gray-400 text-center py-4">{dict.participants.empty}</p>
+          <div>
+            <p className="text-gray-400 text-center py-4">{dict.participants.empty}</p>
+            <button
+              type="button"
+              onClick={addParticipant}
+              className="w-full mt-4 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-500 transition-colors"
+            >
+              {dict.participants.add}
+            </button>
+          </div>
         ) : (
           <div className="space-y-8">
             {fields.map((field, index) => (
               <div key={field.id} className="border border-gray-700 rounded-md p-4">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="font-medium text-white">参加者 {index + 1}</h3>
+                  <h3 className="font-medium text-white">参加者 {index + 2}</h3>
                   <button
                     type="button"
                     onClick={() => remove(index)}
@@ -409,6 +409,14 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
                 </div>
               </div>
             ))}
+            
+            <button
+              type="button"
+              onClick={addParticipant}
+              className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-500 transition-colors"
+            >
+              {`${fields.length + 2}人目を追加`}
+            </button>
           </div>
         )}
       </div>
