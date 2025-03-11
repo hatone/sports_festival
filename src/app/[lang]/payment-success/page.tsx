@@ -1,76 +1,122 @@
 'use client'
 
-export const dynamic = 'force-dynamic'
-
+import { useSearchParams, useRouter } from 'next/navigation'
 import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
 
-function PaymentSuccessContent({
-  lang
-}: {
-  lang: string
-}) {
+// コンテンツコンポーネントを分離
+function PaymentSuccessContent() {
   const searchParams = useSearchParams()
-  const sessionId = searchParams.get('session_id')
-  const [dictionary, setDictionary] = useState({
-    title: 'Payment Successful',
-    message: 'Thank you for your registration!',
-    details: 'Your payment has been processed successfully.',
-    sessionIdLabel: 'Transaction ID:',
-    instruction: 'You will receive a confirmation email shortly.',
-    homeButton: 'Return to Home',
-  })
-
-  useEffect(() => {
-    // 言語に応じて辞書を切り替える
-    if (lang === 'ja') {
-      setDictionary({
-        title: '決済完了',
-        message: 'ご登録ありがとうございます！',
-        details: 'お支払いが正常に処理されました。',
-        sessionIdLabel: '取引ID:',
-        instruction: '確認メールが間もなく届きます。',
-        homeButton: 'ホームに戻る',
-      })
+  const router = useRouter()
+  const [isUpdating, setIsUpdating] = useState(true)
+  const [updateSuccess, setUpdateSuccess] = useState(false)
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : ''
+  const lang = pathname.split('/')[1] || 'en'
+  
+  // ディクショナリ
+  const dict = {
+    ja: {
+      title: 'お支払い完了',
+      subtitle: 'シリコンバレー大運動会へのご登録ありがとうございます！',
+      message: 'お支払いが完了しました。登録情報は登録時に入力いただいたメールアドレスに送信されます。',
+      backToHome: 'ホームに戻る',
+      confirmationNumber: '確認番号',
+      updateStatus: {
+        updating: 'システムに情報を更新中...',
+        success: '登録情報が更新されました',
+        error: '情報の更新中にエラーが発生しました（スタッフが手動で対応します）'
+      }
+    },
+    en: {
+      title: 'Payment Completed',
+      subtitle: 'Thank you for registering for the Silicon Valley Sports Festival!',
+      message: 'Your payment has been completed. The registration information will be sent to the email address you provided during registration.',
+      backToHome: 'Back to Home',
+      confirmationNumber: 'Confirmation Number',
+      updateStatus: {
+        updating: 'Updating system information...',
+        success: 'Registration information has been updated',
+        error: 'An error occurred while updating the information (staff will handle this manually)'
+      }
     }
-  }, [lang])
-
+  }
+  
+  // 現在の言語の辞書を選択
+  const t = lang === 'ja' ? dict.ja : dict.en
+  
+  // セッションIDを取得
+  const sessionId = searchParams.get('session_id')
+  
+  // 支払い状況を更新
+  useEffect(() => {
+    const updatePaymentStatus = async () => {
+      if (!sessionId) return
+      
+      try {
+        setIsUpdating(true)
+        const response = await fetch(`/api/update-payment-status?session_id=${sessionId}`)
+        
+        if (response.ok) {
+          setUpdateSuccess(true)
+        } else {
+          console.error('支払い状況の更新に失敗しました')
+          setUpdateSuccess(false)
+        }
+      } catch (error) {
+        console.error('支払い状況の更新中にエラーが発生しました:', error)
+        setUpdateSuccess(false)
+      } finally {
+        setIsUpdating(false)
+      }
+    }
+    
+    updatePaymentStatus()
+  }, [sessionId])
+  
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6 md:p-24">
       <div className="max-w-2xl mx-auto text-center">
-        <div className="mb-8">
-          <div className="bg-green-500 rounded-full p-4 mx-auto w-16 h-16 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
+        <h1 className="text-3xl font-bold mb-4">{t.title}</h1>
+        <h2 className="text-xl mb-6">{t.subtitle}</h2>
+        
+        <div className="bg-gray-800 p-6 rounded-lg shadow-md mb-8">
+          <p className="mb-6">{t.message}</p>
+          
+          {sessionId && (
+            <div className="mb-6">
+              <p className="text-sm text-gray-400 mb-1">{t.confirmationNumber}</p>
+              <p className="font-mono bg-gray-700 p-2 rounded-md overflow-x-auto text-sm">
+                {sessionId}
+              </p>
+            </div>
+          )}
+          
+          <div className="mb-6">
+            {isUpdating ? (
+              <div className="flex flex-col items-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500 mb-2"></div>
+                <p className="text-gray-400">{t.updateStatus.updating}</p>
+              </div>
+            ) : updateSuccess ? (
+              <p className="text-green-400">{t.updateStatus.success}</p>
+            ) : (
+              <p className="text-red-400">{t.updateStatus.error}</p>
+            )}
           </div>
+          
+          <Link
+            href={`/${lang}`}
+            className="inline-block px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500 transition-colors"
+          >
+            {t.backToHome}
+          </Link>
         </div>
-        
-        <h1 className="text-3xl font-bold mb-4">{dictionary.title}</h1>
-        <p className="text-xl mb-4">{dictionary.message}</p>
-        <p className="mb-8">{dictionary.details}</p>
-        
-        {sessionId && (
-          <div className="bg-gray-800 p-4 rounded-md inline-block mb-8">
-            <p className="text-gray-400 text-sm">{dictionary.sessionIdLabel}</p>
-            <p className="font-mono text-sm">{sessionId}</p>
-          </div>
-        )}
-        
-        <p className="mb-8 text-gray-300">{dictionary.instruction}</p>
-        
-        <Link
-          href={`/${lang}`}
-          className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500 transition-colors inline-block"
-        >
-          {dictionary.homeButton}
-        </Link>
       </div>
     </div>
   )
 }
 
+// メインページコンポーネント
 export default function PaymentSuccessPage({
   params: { lang }
 }: {
@@ -81,14 +127,19 @@ export default function PaymentSuccessPage({
       <div className="min-h-screen bg-gray-900 text-white p-6 md:p-24">
         <div className="max-w-2xl mx-auto text-center">
           <div className="animate-pulse">
-            <div className="h-16 w-16 bg-gray-700 rounded-full mx-auto mb-8"></div>
-            <div className="h-8 bg-gray-700 rounded w-1/2 mx-auto mb-4"></div>
-            <div className="h-4 bg-gray-700 rounded w-3/4 mx-auto"></div>
+            <div className="h-8 bg-gray-700 rounded-full mx-auto w-16 h-16 mb-8"></div>
+            <div className="h-6 bg-gray-700 rounded w-3/4 mx-auto mb-4"></div>
+            <div className="h-4 bg-gray-700 rounded w-1/2 mx-auto mb-8"></div>
+            <div className="bg-gray-800 p-6 rounded-lg shadow-md">
+              <div className="h-4 bg-gray-700 rounded w-full mx-auto mb-6"></div>
+              <div className="h-10 bg-gray-700 rounded w-full mx-auto mb-6"></div>
+              <div className="h-4 bg-gray-700 rounded w-1/3 mx-auto"></div>
+            </div>
           </div>
         </div>
       </div>
     }>
-      <PaymentSuccessContent lang={lang} />
+      <PaymentSuccessContent />
     </Suspense>
   )
 } 
