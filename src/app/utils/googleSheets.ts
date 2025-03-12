@@ -53,6 +53,23 @@ export const appendToGoogleSheet = async (data: any) => {
     const spreadsheetId = process.env.GOOGLE_SHEETS_ID || '1WLJy_eDXW5xAdKLmAboriMXfAFGvBXsa03tYVfeePVg';
     console.log('スプレッドシートID:', spreadsheetId);
     
+    // スプレッドシート情報を取得して最初のシート名を確認
+    let sheetName = 'master';
+    try {
+      const spreadsheetInfo = await sheets.spreadsheets.get({
+        spreadsheetId,
+        fields: 'sheets.properties'
+      });
+      
+      if (spreadsheetInfo.data.sheets && spreadsheetInfo.data.sheets.length > 0) {
+        // @ts-ignore
+        sheetName = spreadsheetInfo.data.sheets[0].properties.title;
+        console.log('取得したシート名:', sheetName);
+      }
+    } catch (sheetInfoError) {
+      console.error('シート情報の取得に失敗しました。デフォルトのシート名を使用します:', sheetInfoError);
+    }
+    
     // イベント選択をカンマ区切り文字列に変換
     const eventsString = Array.isArray(data.events) ? data.events.join(', ') : data.events;
     
@@ -86,12 +103,13 @@ export const appendToGoogleSheet = async (data: any) => {
     ];
     
     console.log('スプレッドシートに追加するデータを準備しました。データ追加を実行します...');
+    console.log(`使用するシート名と範囲: ${sheetName}!A:L`);
     
     try {
       // シートにデータを追加
       const result = await sheets.spreadsheets.values.append({
         spreadsheetId,
-        range: 'Sheet1!A:L',  // スプレッドシートの範囲を指定
+        range: `${sheetName}!A:L`,  // 動的に取得したシート名を使用
         valueInputOption: 'RAW',
         requestBody: {
           values: [rowData]
