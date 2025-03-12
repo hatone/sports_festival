@@ -3,23 +3,35 @@ import { google } from 'googleapis';
 // 環境変数から認証情報を取得
 const getAuth = () => {
   try {
+    console.log('Google Sheets認証開始...');
+    
     // 環境変数から認証情報を取得
     const credentials = process.env.GOOGLE_SHEETS_CREDENTIALS;
     
     if (!credentials) {
+      console.error('環境変数 GOOGLE_SHEETS_CREDENTIALS が設定されていません');
       throw new Error('Google Sheets認証情報が設定されていません');
     }
     
-    const parsedCredentials = JSON.parse(credentials);
+    console.log('認証情報が見つかりました。JSONとして解析します...');
     
-    const auth = new google.auth.JWT(
-      parsedCredentials.client_email,
-      undefined,
-      parsedCredentials.private_key,
-      ['https://www.googleapis.com/auth/spreadsheets']
-    );
-    
-    return auth;
+    try {
+      const parsedCredentials = JSON.parse(credentials);
+      console.log('認証情報を正常に解析しました。client_email:', parsedCredentials.client_email?.substring(0, 5) + '...');
+      
+      const auth = new google.auth.JWT(
+        parsedCredentials.client_email,
+        undefined,
+        parsedCredentials.private_key,
+        ['https://www.googleapis.com/auth/spreadsheets']
+      );
+      
+      console.log('JWT認証オブジェクトを作成しました');
+      return auth;
+    } catch (parseError) {
+      console.error('認証情報のJSONパースに失敗しました:', parseError);
+      throw new Error('認証情報の形式が不正です');
+    }
   } catch (error) {
     console.error('Google認証エラー:', error);
     throw error;
@@ -31,10 +43,15 @@ const getAuth = () => {
  */
 export const appendToGoogleSheet = async (data: any) => {
   try {
+    console.log('Google Sheetsへのデータ追加を開始します...');
+    
     const auth = getAuth();
+    console.log('認証が完了しました。Google Sheets APIを初期化します...');
+    
     const sheets = google.sheets({ version: 'v4', auth });
     
     const spreadsheetId = process.env.GOOGLE_SHEETS_ID || '1WLJy_eDXW5xAdKLmAboriMXfAFGvBXsa03tYVfeePVg';
+    console.log('スプレッドシートID:', spreadsheetId);
     
     // イベント選択をカンマ区切り文字列に変換
     const eventsString = Array.isArray(data.events) ? data.events.join(', ') : data.events;
@@ -68,21 +85,33 @@ export const appendToGoogleSheet = async (data: any) => {
       data.sessionId || ''              // StripeセッションID
     ];
     
-    // シートにデータを追加
-    const result = await sheets.spreadsheets.values.append({
-      spreadsheetId,
-      range: 'Sheet1!A:L',  // スプレッドシートの範囲を指定
-      valueInputOption: 'RAW',
-      requestBody: {
-        values: [rowData]
+    console.log('スプレッドシートに追加するデータを準備しました。データ追加を実行します...');
+    
+    try {
+      // シートにデータを追加
+      const result = await sheets.spreadsheets.values.append({
+        spreadsheetId,
+        range: 'Sheet1!A:L',  // スプレッドシートの範囲を指定
+        valueInputOption: 'RAW',
+        requestBody: {
+          values: [rowData]
+        }
+      });
+      
+      console.log('スプレッドシートにデータを追加しました。レスポンス:', JSON.stringify(result.data));
+      return result.data;
+    } catch (apiError: any) {
+      console.error('Google Sheets API呼び出しエラー:', apiError.message);
+      if (apiError.response) {
+        console.error('エラーレスポンス:', JSON.stringify(apiError.response.data));
       }
-    });
-    
-    console.log('スプレッドシートに登録データを追加しました:', result.data);
-    return result.data;
-    
-  } catch (error) {
-    console.error('スプレッドシートへのデータ追加エラー:', error);
+      throw apiError;
+    }
+  } catch (error: any) {
+    console.error('スプレッドシートへのデータ追加エラー:', error.message);
+    if (error.stack) {
+      console.error('スタックトレース:', error.stack);
+    }
     throw error;
   }
 }; 
