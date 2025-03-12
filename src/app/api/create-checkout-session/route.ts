@@ -101,7 +101,8 @@ export async function POST(request: Request) {
     
     // Google Sheetsにデータを追加
     try {
-      await appendToGoogleSheet({
+      console.log('Google Sheetsにデータを追加します...');
+      const sheetResult = await appendToGoogleSheet({
         name,
         age,
         email,
@@ -116,8 +117,12 @@ export async function POST(request: Request) {
         paymentStatus: 'pending',
         sessionId: session.id
       });
-    } catch (sheetError) {
-      console.error('Google Sheetsへのデータ追加に失敗しました:', sheetError);
+      console.log('Google Sheetsへのデータ追加が完了しました:', sheetResult);
+    } catch (sheetError: any) {
+      console.error('Google Sheetsへのデータ追加に失敗しました:', sheetError.message);
+      if (sheetError.stack) {
+        console.error('エラースタックトレース:', sheetError.stack);
+      }
       // スプレッドシートへの追加が失敗しても、決済プロセスは継続
     }
     
