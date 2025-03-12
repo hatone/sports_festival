@@ -9,14 +9,66 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(request: Request) {
   try {
-    const { name, email, events, lang, phone, participants, amount, gender, notes } = await request.json()
+    const { name, email, events, lang, phone, participants, amount, gender, notes, age } = await request.json()
+    
     
     // 合計参加者数（代表者 + 追加参加者）
     const totalParticipants = 1 + (participants?.length || 0)
     
-    // 受け取った金額を使用（11歳以下は無料、12歳以上は$20）
-    // クライアント側で計算された金額をセント単位に変換（ドル→日本円）
-    const unitAmount = amount * 100
+    // 年齢別の参加者数をカウント
+    let adultCount = 0; // 12歳以上
+    let childCount = 0; // 12歳未満
+    
+    // 代表者の年齢をチェック
+    if (Number(age) <= 11) {
+      childCount++;
+    } else {
+      adultCount++;
+    }
+    
+    // 追加参加者の年齢をチェック
+    if (participants && participants.length > 0) {
+      participants.forEach((participant: any) => {
+        if (participant.age <= 11) {
+          childCount++;
+        } else {
+          adultCount++;
+        }
+      });
+    }
+    
+    // line_itemsを作成
+    const lineItems: any[] = [];
+    
+    // 大人（12歳以上）の参加費を追加
+    if (adultCount > 0) {
+      lineItems.push({
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: '運動会参加費 (12歳以上)',
+            description: '12歳以上の参加者',
+          },
+          unit_amount: 2000, // $20.00
+        },
+        quantity: adultCount,
+      });
+    }
+    
+    // 子供（12歳未満）の参加費を追加（無料だが表示のために含める）
+    if (childCount > 0) {
+      lineItems.push({
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: '運動会参加費 (12歳未満)',
+            description: '12歳未満の参加者 (無料)',
+          },
+          unit_amount: 0, // $0.00（無料）
+        },
+        quantity: childCount,
+      });
+    }
     
     // 参加者情報をJSON文字列に変換
     const participantsInfo = JSON.stringify(participants || [])
@@ -27,19 +79,7 @@ export async function POST(request: Request) {
     // Stripeセッションを作成
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd', // 米ドルに変更
-            product_data: {
-              name: '運動会参加費',
-              description: `${name}様を含む ${totalParticipants}名`,
-            },
-            unit_amount: unitAmount,
-          },
-          quantity: 1,
-        },
-      ],
+      line_items: lineItems,
       mode: 'payment',
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://sports-festival-r16r05e2s-hatones-projects.vercel.app'}/${lang}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://sports-festival-r16r05e2s-hatones-projects.vercel.app'}/${lang}/payment-cancel`,
@@ -52,6 +92,8 @@ export async function POST(request: Request) {
         events: eventsString,
         notes: notes || '',
         participantsCount: totalParticipants.toString(),
+        adultCount: adultCount.toString(),
+        childCount: childCount.toString(),
         participants: participantsInfo.length > 500 ? '参加者情報は長すぎるため省略されました' : participantsInfo,
         language: lang
       },
@@ -61,7 +103,7 @@ export async function POST(request: Request) {
     try {
       await appendToGoogleSheet({
         name,
-        age: '', // 年齢が送信されていないため空値
+        age,
         email,
         gender,
         events,
@@ -69,6 +111,8 @@ export async function POST(request: Request) {
         notes,
         participants,
         amount,
+        adultCount,
+        childCount,
         paymentStatus: 'pending',
         sessionId: session.id
       });

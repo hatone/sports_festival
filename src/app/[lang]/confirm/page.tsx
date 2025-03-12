@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
-// 料金計算関数（11歳以下は無料、12歳以上は$20）
+// 料金計算関数（12歳未満は無料、12歳以上は$20）
 const calculatePrice = (age: number): number => {
   return age <= 11 ? 0 : 20;
 };
@@ -102,7 +102,7 @@ function ConfirmPageContent() {
     },
     pricing: {
       title: 'イベント詳細',
-      free: '無料（11歳以下）',
+      free: '無料（12歳未満）',
       paid: '$20（12歳以上）',
       total: '合計',
       currency: '$',
@@ -110,7 +110,7 @@ function ConfirmPageContent() {
         date: '日時：2025年5月4日（日）午前9時〜午後4時',
         venue: '会場：Woodside High School',
         participants: '参加者：ベイエリア在住（でなくても可）のご家族のみなさま',
-        fee: '参加費：12歳以上$20（11歳以下は無料）',
+        fee: '参加費：12歳以上$20（12歳未満は無料）',
         format: '形式：4チームに分かれて点数をほのぼの競い合います。',
         events: ''
       }
@@ -140,7 +140,7 @@ function ConfirmPageContent() {
     },
     pricing: {
       title: 'Event Details',
-      free: 'Free (11 years and under)',
+      free: 'Free (under 12 years)',
       paid: '$20 (12 years and older)',
       total: 'Total',
       currency: '$',
@@ -148,7 +148,7 @@ function ConfirmPageContent() {
         date: 'Date: May 4, 2025 (Sunday) 9:00 AM - 4:00 PM',
         venue: 'Venue: Woodside High School',
         participants: 'Participants: Families residing in the Bay Area (others are welcome too)',
-        fee: 'Fee: $20 for ages 12 and above (Free for ages 11 and under)',
+        fee: 'Fee: $20 for ages 12 and above (Free for under 12 years)',
         format: 'Format: Participants will be divided into 4 teams to compete for points in a friendly manner.',
         events: ''
       }
@@ -191,7 +191,7 @@ function ConfirmPageContent() {
             },
             pricing: {
               title: 'イベント詳細',
-              free: '無料（11歳以下）',
+              free: '無料（12歳未満）',
               paid: '$20（12歳以上）',
               total: '合計',
               currency: '$',
@@ -199,7 +199,7 @@ function ConfirmPageContent() {
                 date: '日時：2025年5月4日（日）午前9時〜午後4時',
                 venue: '会場：Woodside High School',
                 participants: '参加者：ベイエリア在住（でなくても可）のご家族のみなさま',
-                fee: '参加費：12歳以上$20（11歳以下は無料）',
+                fee: '参加費：12歳以上$20（12歳未満は無料）',
                 format: '形式：4チームに分かれて点数をほのぼの競い合います。',
                 events: ''
               }
