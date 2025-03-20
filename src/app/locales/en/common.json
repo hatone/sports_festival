@@ -24,6 +24,18 @@
       "female": "Female",
       "other": "Other"
     },
+    "club_experience": {
+      "label": "Please tell us about your last sports club experience",
+      "placeholder": "Example: Soccer club until 6th grade, Track and field club for 3 years in high school, etc."
+    },
+    "exercise_frequency": {
+      "label": "How often do you exercise?",
+      "options": {
+        "none": "Almost never",
+        "weekly": "Once a week",
+        "daily": "Almost daily"
+      }
+    },
     "event": "Events (Optional)",
     "event_description": "Participation in events is not mandatory. It's okay if you don't want to participate in any events. This form helps us measure how many people are interested in which events. Please check at the venue on the day of the event to confirm which events will be held.",
     "event_title": "【Planned Events】",

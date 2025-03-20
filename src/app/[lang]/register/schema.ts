@@ -29,6 +29,8 @@ export const registerSchema = z.object({
   gender: z.enum(['male', 'female', 'other']),
   events: z.array(z.enum(eventEnum)).default([]),
   phone: z.string().optional(),
+  clubExperience: z.string().optional(),
+  exerciseFrequency: z.enum(['none', 'weekly', 'daily']).optional(),
   notes: z.string().optional(),
   // 追加参加者の配列
   participants: z.array(participantSchema).optional().default([])
