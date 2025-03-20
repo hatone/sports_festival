@@ -64,6 +64,18 @@ type FormDict = {
     events: string
   }
   representative_info: string
+  club_experience: {
+    label: string
+    placeholder: string
+  }
+  exercise_frequency: {
+    label: string
+    options: {
+      none: string
+      weekly: string
+      daily: string
+    }
+  }
 }
 
 export default function RegisterForm({ dict }: { dict: FormDict }) {
@@ -95,6 +107,8 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
       gender: 'male',
       events: [],
       phone: '',
+      clubExperience: '',
+      exerciseFrequency: 'none',
       notes: '',
       participants: []
     }
@@ -126,6 +140,8 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
       params.set('gender', data.gender)
       params.set('events', JSON.stringify(data.events))
       params.set('phone', data.phone || '')
+      params.set('clubExperience', data.clubExperience || '')
+      params.set('exerciseFrequency', data.exerciseFrequency || 'none')
       params.set('notes', data.notes || '')
       
       // 追加参加者の情報を含める
@@ -260,11 +276,38 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
               id="phone"
               {...register('phone')}
               className="mt-1 block w-full rounded-md border-gray-600 bg-gray-800 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              placeholder="(123) 456-7890"
             />
             {errors.phone && (
               <p className="mt-1 text-sm text-red-400">{dict.errors.phone}</p>
             )}
+          </div>
+
+          <div>
+            <label htmlFor="clubExperience" className="block text-sm font-medium text-white">
+              {dict.club_experience.label}
+            </label>
+            <input
+              type="text"
+              id="clubExperience"
+              {...register('clubExperience')}
+              placeholder={dict.club_experience.placeholder}
+              className="mt-1 block w-full rounded-md border-gray-600 bg-gray-800 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="exerciseFrequency" className="block text-sm font-medium text-white">
+              {dict.exercise_frequency.label}
+            </label>
+            <select
+              id="exerciseFrequency"
+              {...register('exerciseFrequency')}
+              className="mt-1 block w-full rounded-md border-gray-600 bg-gray-800 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            >
+              <option value="none">{dict.exercise_frequency.options.none}</option>
+              <option value="weekly">{dict.exercise_frequency.options.weekly}</option>
+              <option value="daily">{dict.exercise_frequency.options.daily}</option>
+            </select>
           </div>
 
           <div>
@@ -311,7 +354,7 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
             <textarea
               id="notes"
               {...register('notes')}
-              rows={4}
+              rows={3}
               className="mt-1 block w-full rounded-md border-gray-600 bg-gray-800 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
           </div>

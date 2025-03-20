@@ -96,19 +96,21 @@ export const appendToGoogleSheet = async (data: any) => {
       data.phone || '',                 // 電話番号
       eventsString,                     // 選択イベント
       participantsString,               // 追加参加者情報
+      data.clubExperience || '',        // 最終部活経験
+      data.exerciseFrequency || '',     // 運動頻度
       data.notes || '',                 // 備考
       data.amount,                      // 合計金額
       data.sessionId || ''              // StripeセッションID
     ];
     
     console.log('スプレッドシートに追加するデータを準備しました。データ追加を実行します...');
-    console.log(`使用するシート名と範囲: ${sheetName}!A:K`);
+    console.log(`使用するシート名と範囲: ${sheetName}!A:M`);
     
     try {
       // シートにデータを追加
       const result = await sheets.spreadsheets.values.append({
         spreadsheetId,
-        range: `${sheetName}!A:K`,  // 動的に取得したシート名を使用
+        range: `${sheetName}!A:M`,  // 動的に取得したシート名を使用
         valueInputOption: 'RAW',
         requestBody: {
           values: [rowData]
