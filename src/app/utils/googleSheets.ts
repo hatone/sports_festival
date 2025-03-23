@@ -84,7 +84,14 @@ export const appendToGoogleSheet = async (data: any) => {
     
     // 現在の日時
     const now = new Date();
-    const registrationDate = now.toISOString();
+    const registrationDate = now.toLocaleString('ja-JP', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).replace(/\//g, '-');
     
     // スプレッドシートに追加する行データ
     const rowData = [

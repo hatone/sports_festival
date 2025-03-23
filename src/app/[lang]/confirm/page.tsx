@@ -35,6 +35,8 @@ function ConfirmPageContent() {
     events: string[]
     eventLabels: string[]
     phone: string
+    clubExperience: string
+    exerciseFrequency: string
     notes: string
     participants: Participant[]
     totalPrice: number
@@ -46,6 +48,8 @@ function ConfirmPageContent() {
     events: [],
     eventLabels: [],
     phone: '',
+    clubExperience: '',
+    exerciseFrequency: '',
     notes: '',
     participants: [],
     totalPrice: 0
@@ -215,6 +219,8 @@ function ConfirmPageContent() {
     const gender = searchParams.get('gender') || ''
     const eventsJson = searchParams.get('events') || '[]'
     const phone = searchParams.get('phone') || ''
+    const clubExperience = searchParams.get('clubExperience') || ''
+    const exerciseFrequency = searchParams.get('exerciseFrequency') || ''
     const notes = searchParams.get('notes') || ''
     const participantsJson = searchParams.get('participants') || '[]'
     
@@ -243,6 +249,8 @@ function ConfirmPageContent() {
         events,
         eventLabels,
         phone,
+        clubExperience,
+        exerciseFrequency,
         notes,
         participants: participantsWithLabels,
         totalPrice
@@ -259,21 +267,27 @@ function ConfirmPageContent() {
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           name: formData.name,
+          age: Number(formData.age),
           email: formData.email,
           gender: formData.gender,
-          age: formData.age,
           events: formData.events,
-          eventLabels: formData.eventLabels,
-          lang: lang,
           phone: formData.phone,
+          clubExperience: formData.clubExperience,
+          exerciseFrequency: formData.exerciseFrequency,
           notes: formData.notes,
-          participants: formData.participants,
-          amount: formData.totalPrice, // 計算された合計金額
-        }),
+          participants: formData.participants.map(p => ({
+            name: p.name,
+            age: p.age,
+            gender: p.gender,
+            events: p.events
+          })),
+          amount: formData.totalPrice,
+          locale: lang,
+        })
       })
       
       if (!response.ok) {

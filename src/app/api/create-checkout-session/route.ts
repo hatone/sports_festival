@@ -9,7 +9,20 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(request: Request) {
   try {
-    const { name, email, events, lang, phone, participants, amount, gender, notes, age } = await request.json()
+    const { 
+      name, 
+      email, 
+      events, 
+      locale: lang, 
+      phone, 
+      clubExperience,
+      exerciseFrequency,
+      participants, 
+      amount, 
+      gender, 
+      notes, 
+      age 
+    } = await request.json()
     
     
     // 合計参加者数（代表者 + 追加参加者）
@@ -109,6 +122,8 @@ export async function POST(request: Request) {
         gender,
         events,
         phone,
+        clubExperience,
+        exerciseFrequency,
         notes,
         participants,
         amount,

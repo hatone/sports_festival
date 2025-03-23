@@ -21,6 +21,8 @@ function DisclaimerContent({
     gender: string
     events: string[]
     phone: string
+    clubExperience: string
+    exerciseFrequency: string
     notes: string
     participants: any[]
   }>({
@@ -30,6 +32,8 @@ function DisclaimerContent({
     gender: '',
     events: [],
     phone: '',
+    clubExperience: '',
+    exerciseFrequency: '',
     notes: '',
     participants: []
   })
@@ -82,6 +86,8 @@ function DisclaimerContent({
     const gender = searchParams.get('gender') || ''
     const eventsJson = searchParams.get('events') || '[]'
     const phone = searchParams.get('phone') || ''
+    const clubExperience = searchParams.get('clubExperience') || ''
+    const exerciseFrequency = searchParams.get('exerciseFrequency') || ''
     const notes = searchParams.get('notes') || ''
     const participantsJson = searchParams.get('participants') || '[]'
     
@@ -96,6 +102,8 @@ function DisclaimerContent({
         gender,
         events,
         phone,
+        clubExperience,
+        exerciseFrequency,
         notes,
         participants
       })
@@ -205,6 +213,8 @@ function DisclaimerContent({
     params.set('gender', formData.gender)
     params.set('events', JSON.stringify(formData.events))
     params.set('phone', formData.phone || '')
+    params.set('clubExperience', formData.clubExperience || '')
+    params.set('exerciseFrequency', formData.exerciseFrequency || '')
     params.set('notes', formData.notes || '')
     params.set('participants', JSON.stringify(formData.participants || []))
     params.set('signature', signature) // 署名情報も追加
