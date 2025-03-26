@@ -27,6 +27,7 @@ function ConfirmPageContent() {
   const router = useRouter()
   const pathname = usePathname()
   const [lang, setLang] = useState('')
+  const [isProcessing, setIsProcessing] = useState(false)
   const [formData, setFormData] = useState<{
     name: string
     age: string
@@ -262,7 +263,36 @@ function ConfirmPageContent() {
 
   // Stripe決済画面に進む
   const handleProceedToPayment = async () => {
+    // 処理中の場合は実行しない（二重クリック防止）
+    if (isProcessing) return;
+    
+    // セッション識別子をチェック（重複支払い防止）
+    const sessionKey = `payment_${formData.email}_${formData.name}`;
+    const existingSession = typeof window !== 'undefined' ? localStorage.getItem(sessionKey) : null;
+    
+    // 前回の支払いから5分以内の場合は警告を表示
+    if (existingSession) {
+      const lastPayment = JSON.parse(existingSession);
+      const now = Date.now();
+      const fiveMinutesAgo = now - 5 * 60 * 1000;
+      
+      if (lastPayment.timestamp > fiveMinutesAgo) {
+        const confirmDuplicate = window.confirm(
+          lang === 'ja' 
+            ? '5分以内に同じ情報で支払い処理が行われています。重複して支払いを行う可能性があります。続行しますか？' 
+            : 'A payment with the same information was processed within the last 5 minutes. You may be making a duplicate payment. Do you want to continue?'
+        );
+        
+        if (!confirmDuplicate) {
+          return;
+        }
+      }
+    }
+    
     try {
+      // 処理中フラグをON
+      setIsProcessing(true);
+      
       // サーバーサイドのAPIを呼び出す
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
@@ -296,6 +326,14 @@ function ConfirmPageContent() {
       
       const { sessionId } = await response.json()
       
+      // セッション情報をローカルストレージに保存
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(sessionKey, JSON.stringify({
+          timestamp: Date.now(),
+          sessionId
+        }));
+      }
+      
       // Stripeのチェックアウトページへリダイレクト
       const stripe = await stripePromise
       if (stripe) {
@@ -303,11 +341,14 @@ function ConfirmPageContent() {
         if (error) {
           console.error(error)
           alert('決済ページへの遷移に失敗しました。')
+          // エラー時はフラグをOFF
+          setIsProcessing(false);
         }
       }
     } catch (error) {
       console.error('Error:', error)
       alert('エラーが発生しました。もう一度お試しください。')
+      setIsProcessing(false);
     }
   }
 
@@ -432,9 +473,20 @@ function ConfirmPageContent() {
           
           <button
             onClick={handleProceedToPayment}
-            className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500 transition-colors"
+            disabled={isProcessing}
+            className={`px-6 py-2 ${isProcessing ? 'bg-gray-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-500'} text-white rounded-md transition-colors flex items-center justify-center`}
           >
-            {dictionary.proceedToPayment}
+            {isProcessing ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {lang === 'ja' ? '処理中...' : 'Processing...'}
+              </>
+            ) : (
+              dictionary.proceedToPayment
+            )}
           </button>
         </div>
       </div>
