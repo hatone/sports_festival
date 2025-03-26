@@ -24,6 +24,10 @@ export async function POST(request: Request) {
       age 
     } = await request.json()
     
+    // 冪等性キーを生成（メールアドレスとタイムスタンプの組み合わせ）
+    // 同じメールアドレスからの連続リクエストでも一意になるようにタイムスタンプを追加
+    const idempotencyKey = `${email}_${Date.now()}`
+    console.log('冪等性キー:', idempotencyKey)
     
     // 合計参加者数（代表者 + 追加参加者）
     const totalParticipants = 1 + (participants?.length || 0)
@@ -108,8 +112,11 @@ export async function POST(request: Request) {
         adultCount: adultCount.toString(),
         childCount: childCount.toString(),
         participants: participantsInfo.length > 500 ? '参加者情報は長すぎるため省略されました' : participantsInfo,
-        language: lang
+        language: lang,
+        idempotencyKey: idempotencyKey // 冪等性キーをメタデータにも保存
       },
+    }, {
+      idempotencyKey // Stripeの冪等性キーとして設定
     })
     
     // Google Sheetsにデータを追加
@@ -122,8 +129,6 @@ export async function POST(request: Request) {
         gender,
         events,
         phone,
-        clubExperience,
-        exerciseFrequency,
         notes,
         participants,
         amount,
