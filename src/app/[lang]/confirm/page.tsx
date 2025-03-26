@@ -463,6 +463,23 @@ function ConfirmPageContent() {
           </ul>
         </div>
         
+        {/* 注意書き */}
+        <div className="bg-gray-800 p-6 rounded-lg shadow-md mb-8">
+          <div className="text-amber-400 text-sm space-y-2">
+            {lang === 'ja' ? (
+              <>
+                <p>※ お申込み後のキャンセルは承っておりません。内容をご確認のうえ、送信をお願いします。</p>
+                <p>※ 送信ボタンを何度も押すと、まれに二重で決済されてしまうことがあります。1回だけ押して、そのまま少しお待ちください。</p>
+              </>
+            ) : (
+              <>
+                <p>* We do not accept cancellations after submission. Please confirm your details before proceeding.</p>
+                <p>* Pressing the submission button multiple times may occasionally result in duplicate charges. Please press it only once and wait patiently.</p>
+              </>
+            )}
+          </div>
+        </div>
+        
         <div className="flex flex-col sm:flex-row gap-4">
           <button
             onClick={handleBack}
