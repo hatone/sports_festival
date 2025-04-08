@@ -82,6 +82,7 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
   const router = useRouter();
   const pathname = usePathname();
   const [lang, setLang] = useState('');
+  const [isWaitingList, setIsWaitingList] = useState(false);
   
   // 言語パラメータを取得（現在のURLから）- クライアントサイドでのみ実行
   useEffect(() => {
@@ -132,27 +133,43 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
-      // URLパラメータを作成
-      const params = new URLSearchParams()
-      params.set('name', data.name)
-      params.set('age', data.age.toString())
-      params.set('email', data.email)
-      params.set('gender', data.gender)
-      params.set('events', JSON.stringify(data.events))
-      params.set('phone', data.phone || '')
-      params.set('clubExperience', data.clubExperience || '')
-      params.set('exerciseFrequency', data.exerciseFrequency || 'none')
-      params.set('notes', data.notes || '')
-      
-      // 追加参加者の情報を含める
-      if (data.participants && data.participants.length > 0) {
-        params.set('participants', JSON.stringify(data.participants))
+      if (isWaitingList) {
+        // Waitingリストに登録
+        const response = await fetch('/api/waiting-list', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (response.ok) {
+          // Waitingリスト登録完了画面へ遷移
+          router.push(`/${lang}/waiting-list-confirmation`);
+        } else {
+          throw new Error('Failed to add to waiting list');
+        }
       } else {
-        params.set('participants', '[]')
+        // 通常の登録フロー
+        const params = new URLSearchParams()
+        params.set('name', data.name)
+        params.set('age', data.age.toString())
+        params.set('email', data.email)
+        params.set('gender', data.gender)
+        params.set('events', JSON.stringify(data.events))
+        params.set('phone', data.phone || '')
+        params.set('clubExperience', data.clubExperience || '')
+        params.set('exerciseFrequency', data.exerciseFrequency || 'none')
+        params.set('notes', data.notes || '')
+        
+        if (data.participants && data.participants.length > 0) {
+          params.set('participants', JSON.stringify(data.participants))
+        } else {
+          params.set('participants', '[]')
+        }
+        
+        router.push(`/${lang}/disclaimer?${params.toString()}`)
       }
-      
-      // 免責事項ページへ遷移
-      router.push(`/${lang}/disclaimer?${params.toString()}`)
     } catch (error) {
       console.error('Error submitting form:', error)
     }
@@ -243,10 +260,13 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
               {...register('age', { valueAsNumber: true })}
               className="mt-1 block w-full rounded-md border-gray-600 bg-gray-800 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
+            <p className="mt-1 text-sm text-gray-400">
+              代表者は21歳以上である必要があります。21歳未満の方は追加メンバーとして登録してください。
+            </p>
             {errors.age && (
               <p className="mt-1 text-sm text-red-400">
                 {errors.age.type === 'too_small'
-                  ? dict.errors.age.min.replace('{{min}}', '0')
+                  ? dict.errors.age.min.replace('{{min}}', '21')
                   : dict.errors.age.max.replace('{{max}}', '100')}
               </p>
             )}
@@ -464,13 +484,38 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
         )}
       </div>
 
-      <div>
-        <button
-          type="submit"
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
-        >
-          {dict.submit}
-        </button>
+      <div className="bg-gray-900 py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-3xl font-extrabold text-white mb-8">
+            {dict.title}
+          </h2>
+          
+          <div className="mb-8">
+            <label className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                checked={isWaitingList}
+                onChange={(e) => setIsWaitingList(e.target.checked)}
+                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+              />
+              <span className="text-white">
+                Waitingリストに登録する（決済なし）
+              </span>
+            </label>
+            <p className="mt-2 text-sm text-gray-400">
+              Waitingリストに登録すると、キャンセルが出た場合に優先的に参加できるようになります。
+            </p>
+          </div>
+          
+          <div>
+            <button
+              type="submit"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
+            >
+              {dict.submit}
+            </button>
+          </div>
+        </div>
       </div>
     </form>
   )
