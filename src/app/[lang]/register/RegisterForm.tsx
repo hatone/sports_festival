@@ -83,8 +83,6 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
   const pathname = usePathname();
   const [lang, setLang] = useState('');
   const [isWaitingList, setIsWaitingList] = useState(false);
-  const [currentParticipants, setCurrentParticipants] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
   
   // 言語パラメータを取得（現在のURLから）- クライアントサイドでのみ実行
   useEffect(() => {
@@ -94,25 +92,6 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
     }
   }, [pathname]);
 
-  // 現在の登録人数を取得
-  useEffect(() => {
-    const fetchCurrentParticipants = async () => {
-      try {
-        const response = await fetch('/api/current-participants');
-        const data = await response.json();
-        setCurrentParticipants(data.currentParticipants);
-        // 登録人数が433人以上の場合は自動的にWaitingリストモードに
-        setIsWaitingList(data.currentParticipants >= 433);
-      } catch (error) {
-        console.error('Error fetching current participants:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchCurrentParticipants();
-  }, []);
-  
   const {
     register,
     handleSubmit,
@@ -511,36 +490,11 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
             {dict.title}
           </h2>
           
-          {isLoading ? (
-            <div className="text-white text-center py-8">
-              現在の登録状況を確認中...
+          {isWaitingList && (
+            <div className="mb-8 bg-yellow-900 text-white p-4 rounded-lg">
+              <p className="font-bold">現在の登録人数が上限に達しています。</p>
+              <p>Waitingリストに登録することで、キャンセルが出た場合に優先的に参加できるようになります。</p>
             </div>
-          ) : (
-            <>
-              {currentParticipants >= 433 && (
-                <div className="mb-8 bg-yellow-900 text-white p-4 rounded-lg">
-                  <p className="font-bold">現在の登録人数が上限に達しています。</p>
-                  <p>Waitingリストに登録することで、キャンセルが出た場合に優先的に参加できるようになります。</p>
-                </div>
-              )}
-              
-              <div className="mb-8">
-                <label className="flex items-center space-x-3">
-                  <input
-                    type="checkbox"
-                    checked={isWaitingList}
-                    onChange={(e) => setIsWaitingList(e.target.checked)}
-                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                  />
-                  <span className="text-white">
-                    Waitingリストに登録する（決済なし）
-                  </span>
-                </label>
-                <p className="mt-2 text-sm text-gray-400">
-                  Waitingリストに登録すると、キャンセルが出た場合に優先的に参加できるようになります。
-                </p>
-              </div>
-            </>
           )}
           
           <div>
