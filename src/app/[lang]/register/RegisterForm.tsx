@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { registerSchema, type RegisterFormData, type ParticipantData, eventEnum } from './schema'
 import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
+import { REGISTRATION_MODE } from '@/app/config'
 
 type FormDict = {
   title: string
@@ -82,7 +83,7 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
   const router = useRouter();
   const pathname = usePathname();
   const [lang, setLang] = useState('');
-  const [isWaitingList, setIsWaitingList] = useState(false);
+  const [isWaitingList, setIsWaitingList] = useState(REGISTRATION_MODE === 'waiting');
   
   // 言語パラメータを取得（現在のURLから）- クライアントサイドでのみ実行
   useEffect(() => {
