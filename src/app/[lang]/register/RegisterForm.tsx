@@ -531,7 +531,6 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
                     checked={isWaitingList}
                     onChange={(e) => setIsWaitingList(e.target.checked)}
                     className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                    disabled={currentParticipants >= 433}
                   />
                   <span className="text-white">
                     Waitingリストに登録する（決済なし）
@@ -549,7 +548,7 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
               type="submit"
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
             >
-              {dict.submit}
+              {isWaitingList ? 'Waitingリストに登録する' : dict.submit}
             </button>
           </div>
         </div>
