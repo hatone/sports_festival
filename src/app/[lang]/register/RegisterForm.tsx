@@ -486,10 +486,6 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
 
       <div className="bg-gray-900 py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-extrabold text-white mb-8">
-            {dict.title}
-          </h2>
-          
           {isWaitingList && (
             <div className="mb-8 bg-yellow-900 text-white p-4 rounded-lg">
               <p className="font-bold">現在の登録人数が上限に達しています。</p>
