@@ -144,37 +144,38 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
           body: JSON.stringify(data),
         });
 
-        if (response.ok) {
-          // Waitingリスト登録完了画面へ遷移
-          router.push(`/${lang}/waiting-list-confirmation`);
-        } else {
+        if (!response.ok) {
           throw new Error('Failed to add to waiting list');
         }
+
+        // Waitingリスト登録完了画面へ遷移
+        router.push(`/${lang}/waiting-list-confirmation`);
       } else {
         // 通常の登録フロー
-        const params = new URLSearchParams()
-        params.set('name', data.name)
-        params.set('age', data.age.toString())
-        params.set('email', data.email)
-        params.set('gender', data.gender)
-        params.set('events', JSON.stringify(data.events))
-        params.set('phone', data.phone || '')
-        params.set('clubExperience', data.clubExperience || '')
-        params.set('exerciseFrequency', data.exerciseFrequency || 'none')
-        params.set('notes', data.notes || '')
+        const params = new URLSearchParams();
+        params.set('name', data.name);
+        params.set('age', data.age.toString());
+        params.set('email', data.email);
+        params.set('gender', data.gender);
+        params.set('events', JSON.stringify(data.events));
+        params.set('phone', data.phone || '');
+        params.set('clubExperience', data.clubExperience || '');
+        params.set('exerciseFrequency', data.exerciseFrequency || 'none');
+        params.set('notes', data.notes || '');
         
         if (data.participants && data.participants.length > 0) {
-          params.set('participants', JSON.stringify(data.participants))
+          params.set('participants', JSON.stringify(data.participants));
         } else {
-          params.set('participants', '[]')
+          params.set('participants', '[]');
         }
         
-        router.push(`/${lang}/disclaimer?${params.toString()}`)
+        router.push(`/${lang}/disclaimer?${params.toString()}`);
       }
     } catch (error) {
-      console.error('Error submitting form:', error)
+      console.error('Error submitting form:', error);
+      alert('登録中にエラーが発生しました。もう一度お試しください。');
     }
-  }
+  };
 
   // 参加者のイベント選択のレンダリング関数
   const renderEventCheckboxes = (participantIndex: number) => {
@@ -494,14 +495,19 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
             </div>
           )}
           
-          <div>
-            <button
-              type="submit"
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
-            >
-              {isWaitingList ? 'Waitingリストに登録する' : dict.submit}
-            </button>
-          </div>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            {/* フォームの入力項目 */}
+            {/* ... 既存のフォーム入力項目 ... */}
+
+            <div>
+              <button
+                type="submit"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
+              >
+                {isWaitingList ? 'Waitingリストに登録する' : dict.submit}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </form>
