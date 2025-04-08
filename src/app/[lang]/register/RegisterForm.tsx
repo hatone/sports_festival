@@ -495,19 +495,14 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
             </div>
           )}
           
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-            {/* フォームの入力項目 */}
-            {/* ... 既存のフォーム入力項目 ... */}
-
-            <div>
-              <button
-                type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
-              >
-                {isWaitingList ? 'Waitingリストに登録する' : dict.submit}
-              </button>
-            </div>
-          </form>
+          <div>
+            <button
+              type="submit"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
+            >
+              {isWaitingList ? 'Waitingリストに登録する' : dict.submit}
+            </button>
+          </div>
         </div>
       </div>
     </form>
