@@ -53,91 +53,40 @@ export const appendToGoogleSheet = async (data: any) => {
     const spreadsheetId = process.env.GOOGLE_SHEETS_ID || '1WLJy_eDXW5xAdKLmAboriMXfAFGvBXsa03tYVfeePVg';
     console.log('スプレッドシートID:', spreadsheetId);
     
-    // スプレッドシート情報を取得して最初のシート名を確認
-    let sheetName = 'master';
-    try {
-      const spreadsheetInfo = await sheets.spreadsheets.get({
-        spreadsheetId,
-        fields: 'sheets.properties'
-      });
-      
-      if (spreadsheetInfo.data.sheets && spreadsheetInfo.data.sheets.length > 0) {
-        // @ts-ignore
-        sheetName = spreadsheetInfo.data.sheets[0].properties.title;
-        console.log('取得したシート名:', sheetName);
-      }
-    } catch (sheetInfoError) {
-      console.error('シート情報の取得に失敗しました。デフォルトのシート名を使用します:', sheetInfoError);
+    // レンジの設定
+    let rangeString;
+    if (data.sheetId) {
+      console.log(`シートID ${data.sheetId} が指定されました。シートIDを使用してデータを追加します。`);
+      rangeString = `${data.sheetId}!${data.range}`;
+    } else if (data.sheetName) {
+      console.log(`シート名 ${data.sheetName} が指定されました。シート名を使用してデータを追加します。`);
+      rangeString = `${data.sheetName}!${data.range}`;
+    } else {
+      console.log('シートIDもシート名も指定されていません。デフォルトの範囲を使用します。');
+      rangeString = data.range;
     }
     
-    // イベント選択をカンマ区切り文字列に変換
-    const eventsString = Array.isArray(data.events) ? data.events.join(', ') : data.events;
-    
-    // 追加参加者情報を整形
-    let participantsString = '';
-    if (data.participants && data.participants.length > 0) {
-      participantsString = data.participants.map((p: any, index: number) => {
-        const pEvents = Array.isArray(p.events) ? p.events.join(', ') : p.events;
-        return `参加者${index + 2}: ${p.name} (${p.age}歳, ${p.gender}) - イベント: ${pEvents}`;
-      }).join(' | ');
-    }
-    
-    // 現在の日時
-    const now = new Date();
-    const registrationDate = now.toLocaleString('ja-JP', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    }).replace(/\//g, '-');
-    
-    // スプレッドシートに追加する行データ
-    const rowData = [
-      registrationDate,                 // 登録日時
-      data.name,                        // 代表者名
-      data.age,                         // 代表者年齢
-      data.gender,                      // 代表者性別
-      data.email,                       // メールアドレス
-      data.phone || '',                 // 電話番号
-      eventsString,                     // 選択イベント
-      participantsString,               // 追加参加者情報
-      data.clubExperience || '',        // 最終部活経験
-      data.exerciseFrequency || '',     // 運動頻度
-      data.notes || '',                 // 備考
-      data.amount,                      // 合計金額
-      data.sessionId || ''              // StripeセッションID
-    ];
-    
-    console.log('スプレッドシートに追加するデータを準備しました。データ追加を実行します...');
-    console.log(`使用するシート名と範囲: ${sheetName}!A:M`);
+    console.log(`使用する範囲: ${rangeString}`);
     
     try {
-      // シートにデータを追加
+      // スプレッドシートにデータを追加
       const result = await sheets.spreadsheets.values.append({
         spreadsheetId,
-        range: `${sheetName}!A:M`,  // 動的に取得したシート名を使用
-        valueInputOption: 'RAW',
+        range: rangeString,
+        valueInputOption: 'USER_ENTERED',
         requestBody: {
-          values: [rowData]
-        }
+          values: data.values,
+        },
       });
       
-      console.log('スプレッドシートにデータを追加しました。レスポンス:', JSON.stringify(result.data));
-      return result.data;
-    } catch (apiError: any) {
-      console.error('Google Sheets API呼び出しエラー:', apiError.message);
-      if (apiError.response) {
-        console.error('エラーレスポンス:', JSON.stringify(apiError.response.data));
-      }
+      console.log('スプレッドシートにデータを追加しました。', result.data);
+      return true;
+    } catch (apiError) {
+      console.error('Google Sheets API呼び出しエラー:', apiError);
       throw apiError;
     }
-  } catch (error: any) {
-    console.error('スプレッドシートへのデータ追加エラー:', error.message);
-    if (error.stack) {
-      console.error('スタックトレース:', error.stack);
-    }
+  } catch (error) {
+    console.error('スプレッドシートへのデータ追加エラー:', error);
     throw error;
   }
-}; 
+} 

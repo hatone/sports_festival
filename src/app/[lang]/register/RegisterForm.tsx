@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { registerSchema, type RegisterFormData, type ParticipantData, eventEnum } from './schema'
 import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
+import { REGISTRATION_MODE } from '@/app/config'
 
 type FormDict = {
   title: string
@@ -82,6 +83,7 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
   const router = useRouter();
   const pathname = usePathname();
   const [lang, setLang] = useState('');
+  const [isWaitingList, setIsWaitingList] = useState(REGISTRATION_MODE === 'waiting');
   
   // 言語パラメータを取得（現在のURLから）- クライアントサイドでのみ実行
   useEffect(() => {
@@ -90,7 +92,7 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
       setLang(pathParts[1]);
     }
   }, [pathname]);
-  
+
   const {
     register,
     handleSubmit,
@@ -132,31 +134,51 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
-      // URLパラメータを作成
-      const params = new URLSearchParams()
-      params.set('name', data.name)
-      params.set('age', data.age.toString())
-      params.set('email', data.email)
-      params.set('gender', data.gender)
-      params.set('events', JSON.stringify(data.events))
-      params.set('phone', data.phone || '')
-      params.set('clubExperience', data.clubExperience || '')
-      params.set('exerciseFrequency', data.exerciseFrequency || 'none')
-      params.set('notes', data.notes || '')
-      
-      // 追加参加者の情報を含める
-      if (data.participants && data.participants.length > 0) {
-        params.set('participants', JSON.stringify(data.participants))
+      if (isWaitingList) {
+        // Waitingリストに登録
+        console.log('Waitingリストに登録します:', data.name);
+        const response = await fetch('/api/waiting-list', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('Waitingリスト登録エラー:', errorData);
+          throw new Error(errorData.error || 'Waitingリストへの登録に失敗しました');
+        }
+
+        // Waitingリスト登録完了画面へ遷移
+        router.push(`/${lang}/waiting-list-confirmation`);
       } else {
-        params.set('participants', '[]')
+        // 通常の登録フロー
+        const params = new URLSearchParams();
+        params.set('name', data.name);
+        params.set('age', data.age.toString());
+        params.set('email', data.email);
+        params.set('gender', data.gender);
+        params.set('events', JSON.stringify(data.events));
+        params.set('phone', data.phone || '');
+        params.set('clubExperience', data.clubExperience || '');
+        params.set('exerciseFrequency', data.exerciseFrequency || 'none');
+        params.set('notes', data.notes || '');
+        
+        if (data.participants && data.participants.length > 0) {
+          params.set('participants', JSON.stringify(data.participants));
+        } else {
+          params.set('participants', '[]');
+        }
+        
+        router.push(`/${lang}/disclaimer?${params.toString()}`);
       }
-      
-      // 免責事項ページへ遷移
-      router.push(`/${lang}/disclaimer?${params.toString()}`)
-    } catch (error) {
-      console.error('Error submitting form:', error)
+    } catch (error: any) {
+      console.error('Error submitting form:', error);
+      alert('登録中にエラーが発生しました: ' + error.message);
     }
-  }
+  };
 
   // 参加者のイベント選択のレンダリング関数
   const renderEventCheckboxes = (participantIndex: number) => {
@@ -243,10 +265,13 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
               {...register('age', { valueAsNumber: true })}
               className="mt-1 block w-full rounded-md border-gray-600 bg-gray-800 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
+            <p className="mt-1 text-sm text-gray-400">
+              代表者は21歳以上である必要があります。21歳未満の方は追加メンバーとして登録してください。
+            </p>
             {errors.age && (
               <p className="mt-1 text-sm text-red-400">
                 {errors.age.type === 'too_small'
-                  ? dict.errors.age.min.replace('{{min}}', '0')
+                  ? dict.errors.age.min.replace('{{min}}', '21')
                   : dict.errors.age.max.replace('{{max}}', '100')}
               </p>
             )}
@@ -464,13 +489,24 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
         )}
       </div>
 
-      <div>
-        <button
-          type="submit"
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
-        >
-          {dict.submit}
-        </button>
+      <div className="bg-gray-900 py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto">
+          {isWaitingList && (
+            <div className="mb-8 bg-yellow-900 text-white p-4 rounded-lg">
+              <p className="font-bold">現在の登録人数が上限に達しています。</p>
+              <p>Waitingリストに登録することで、キャンセルが出た場合に優先的に参加できるようになります。</p>
+            </div>
+          )}
+          
+          <div>
+            <button
+              type="submit"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
+            >
+              {isWaitingList ? 'Waitingリストに登録する' : dict.submit}
+            </button>
+          </div>
+        </div>
       </div>
     </form>
   )
