@@ -3,7 +3,11 @@ import { appendToGoogleSheet } from '../../utils/googleSheets'
 
 export async function POST(request: Request) {
   try {
+    console.log('Waitingリストへの登録処理を開始します');
+    
+    // リクエストボディをパース
     const data = await request.json()
+    console.log('リクエストデータを受信:', { name: data.name, email: data.email });
     
     // 現在の日時を取得
     const now = new Date()
@@ -17,13 +21,13 @@ export async function POST(request: Request) {
     }).replace(/\//g, '-')
     
     // イベント情報を文字列に変換
-    const eventsString = data.events.join(', ')
+    const eventsString = Array.isArray(data.events) ? data.events.join(', ') : '';
     
     // 追加参加者情報を文字列に変換
     let participantsString = ''
     if (data.participants && data.participants.length > 0) {
       participantsString = data.participants.map((p: any) => 
-        `${p.name} (${p.age}歳, ${p.gender}) - ${p.events.join(', ')}`
+        `${p.name} (${p.age}歳, ${p.gender}) - ${Array.isArray(p.events) ? p.events.join(', ') : ''}`
       ).join(' | ')
     }
     
@@ -44,19 +48,35 @@ export async function POST(request: Request) {
       ''                                // StripeセッションID（空欄）
     ]
     
-    // Waitingリスト用のシートにデータを追加
-    await appendToGoogleSheet({
-      ...data,
-      sheetId: '1680624835', // waitingシートのID
-      range: 'A:M',
-      values: [rowData]
-    })
+    console.log('スプレッドシートに追加するデータを準備しました');
     
-    return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Error adding to waiting list:', error)
+    try {
+      // Waitingリスト用のシートにデータを追加
+      console.log('スプレッドシートへのデータ追加を開始します');
+      await appendToGoogleSheet({
+        sheetId: '1680624835', // waitingシートのID
+        range: 'A:M',
+        values: [rowData]
+      })
+      console.log('スプレッドシートへのデータ追加が完了しました');
+      
+      return NextResponse.json({ success: true })
+    } catch (sheetError: any) {
+      console.error('スプレッドシートへのデータ追加でエラーが発生しました:', sheetError);
+      console.error('エラー詳細:', sheetError.message);
+      if (sheetError.response) {
+        console.error('レスポンス情報:', sheetError.response.data);
+      }
+      return NextResponse.json(
+        { error: 'スプレッドシートへのデータ追加に失敗しました: ' + sheetError.message },
+        { status: 500 }
+      )
+    }
+  } catch (error: any) {
+    console.error('Waitingリスト登録処理でエラーが発生しました:', error);
+    console.error('エラー詳細:', error.message);
     return NextResponse.json(
-      { error: 'Failed to add to waiting list' },
+      { error: 'Waitingリスト登録に失敗しました: ' + error.message },
       { status: 500 }
     )
   }

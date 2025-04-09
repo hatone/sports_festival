@@ -136,6 +136,7 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
     try {
       if (isWaitingList) {
         // Waitingリストに登録
+        console.log('Waitingリストに登録します:', data.name);
         const response = await fetch('/api/waiting-list', {
           method: 'POST',
           headers: {
@@ -145,7 +146,9 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
         });
 
         if (!response.ok) {
-          throw new Error('Failed to add to waiting list');
+          const errorData = await response.json();
+          console.error('Waitingリスト登録エラー:', errorData);
+          throw new Error(errorData.error || 'Waitingリストへの登録に失敗しました');
         }
 
         // Waitingリスト登録完了画面へ遷移
@@ -171,9 +174,9 @@ export default function RegisterForm({ dict }: { dict: FormDict }) {
         
         router.push(`/${lang}/disclaimer?${params.toString()}`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting form:', error);
-      alert('登録中にエラーが発生しました。もう一度お試しください。');
+      alert('登録中にエラーが発生しました: ' + error.message);
     }
   };
 
