@@ -45,30 +45,13 @@ export const appendToGoogleSheet = async (data: any) => {
   try {
     console.log('Google Sheetsへのデータ追加を開始します...');
     
-    // 環境変数の確認
-    if (!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL) {
-      throw new Error('環境変数 GOOGLE_SERVICE_ACCOUNT_EMAIL が設定されていません');
-    }
+    const auth = getAuth();
+    console.log('認証が完了しました。Google Sheets APIを初期化します...');
     
-    if (!process.env.GOOGLE_PRIVATE_KEY) {
-      throw new Error('環境変数 GOOGLE_PRIVATE_KEY が設定されていません');
-    }
+    const sheets = google.sheets({ version: 'v4', auth });
     
-    if (!process.env.GOOGLE_SHEET_ID) {
-      throw new Error('環境変数 GOOGLE_SHEET_ID が設定されていません');
-    }
-    
-    const auth = new google.auth.GoogleAuth({
-      credentials: {
-        client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-      },
-      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-    })
-    
-    console.log('認証情報を設定しました。Google Sheets APIを初期化します...');
-    
-    const sheets = google.sheets({ version: 'v4', auth })
+    const spreadsheetId = process.env.GOOGLE_SHEETS_ID || '1WLJy_eDXW5xAdKLmAboriMXfAFGvBXsa03tYVfeePVg';
+    console.log('スプレッドシートID:', spreadsheetId);
     
     // レンジの設定
     let rangeString;
@@ -83,34 +66,27 @@ export const appendToGoogleSheet = async (data: any) => {
       rangeString = data.range;
     }
     
-    console.log(`スプレッドシートID: ${process.env.GOOGLE_SHEET_ID}`);
     console.log(`使用する範囲: ${rangeString}`);
     
     try {
       // スプレッドシートにデータを追加
       const result = await sheets.spreadsheets.values.append({
-        spreadsheetId: process.env.GOOGLE_SHEET_ID,
+        spreadsheetId,
         range: rangeString,
         valueInputOption: 'USER_ENTERED',
         requestBody: {
           values: data.values,
         },
-      })
+      });
       
       console.log('スプレッドシートにデータを追加しました。', result.data);
-      return true
-    } catch (apiError: any) {
-      console.error('Google Sheets API呼び出しエラー:', apiError.message);
-      if (apiError.response) {
-        console.error('エラーレスポンス:', apiError.response.data);
-      }
+      return true;
+    } catch (apiError) {
+      console.error('Google Sheets API呼び出しエラー:', apiError);
       throw apiError;
     }
-  } catch (error: any) {
-    console.error('スプレッドシートへのデータ追加エラー:', error.message);
-    if (error.stack) {
-      console.error('スタックトレース:', error.stack);
-    }
+  } catch (error) {
+    console.error('スプレッドシートへのデータ追加エラー:', error);
     throw error;
   }
 } 
