@@ -54,7 +54,7 @@ export async function POST(request: Request) {
       // Waitingリスト用のシートにデータを追加
       console.log('スプレッドシートへのデータ追加を開始します');
       await appendToGoogleSheet({
-        sheetId: '1680624835', // waitingシートのID
+        sheetName: 'waiting', // シート名を使用
         range: 'A:M',
         values: [rowData]
       })
